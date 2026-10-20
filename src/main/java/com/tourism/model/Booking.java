@@ -7,6 +7,11 @@ import java.time.LocalDateTime;
  * Booking entity representing a customer trip reservation.
  */
 public class Booking {
+    // Possible values of booking_status (used by Dev 5's booking module)
+    public static final String CONFIRMED = "CONFIRMED";
+    public static final String CANCELLED = "CANCELLED";
+    public static final String COMPLETED = "COMPLETED";
+
     private int bookingId;
     private int userId;
     private int packageId;
@@ -20,6 +25,9 @@ public class Booking {
     // Optional joined objects for UI and PDF reporting
     private Package travelPackage;
     private User user;
+
+    // Package title from a JOIN query, used by the booking history table
+    private String packageTitle;
 
     public Booking() {}
 
@@ -132,6 +140,23 @@ public class Booking {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getPackageTitle() {
+        return packageTitle;
+    }
+
+    public void setPackageTitle(String packageTitle) {
+        this.packageTitle = packageTitle;
+    }
+
+    // Short aliases for bookingStatus, used by BookingDAO and BookingService
+    public String getStatus() {
+        return bookingStatus;
+    }
+
+    public void setStatus(String status) {
+        this.bookingStatus = status;
     }
 
     public boolean isCancelled() {
