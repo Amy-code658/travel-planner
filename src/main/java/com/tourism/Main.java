@@ -14,15 +14,63 @@ import java.sql.Statement;
 /**
  * Main application entry point for Personalized Tourism Management System.
  * Configures FlatLaf UI, validates database connectivity, and bootstraps the desktop client.
+ * Includes graceful headless fallback when run from non-X11/SSH terminal sessions.
  */
 public class Main {
 
     public static void main(String[] args) {
+        // If run in a headless environment without an X11/Wayland display, output CLI status
+        if (GraphicsEnvironment.isHeadless()) {
+            printHeadlessStatus();
+            return;
+        }
+
         // Set modern FlatLaf Look and Feel
         FlatLightLaf.setup();
 
         // Run UI on Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(Main::createAndShowGUI);
+    }
+
+    private static void printHeadlessStatus() {
+        System.out.println("==================================================");
+        System.out.println("  Personalized Tourism Management System");
+        System.out.println("==================================================");
+        System.out.println("ℹ️  No graphical display detected (Headless mode).\n");
+
+        System.out.println("⏳ Validating Database Connectivity...");
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            if (conn != null && !conn.isClosed()) {
+                Statement stmt = conn.createStatement();
+                int destCount = 0;
+                int pkgCount = 0;
+
+                ResultSet rs1 = stmt.executeQuery("SELECT COUNT(*) FROM destinations");
+                if (rs1.next()) destCount = rs1.getInt(1);
+
+                ResultSet rs2 = stmt.executeQuery("SELECT COUNT(*) FROM travel_packages");
+                if (rs2.next()) pkgCount = rs2.getInt(1);
+
+                System.out.println("✔ [DATABASE CONNECTED] Successfully connected to 'tourism_db' on localhost:3306 as 'tourism_user'.");
+                System.out.println("  - Destinations: " + destCount);
+                System.out.println("  - Travel Packages: " + pkgCount);
+            } else {
+                System.err.println("✖ [DATABASE DISCONNECTED] Connection is null or closed.");
+            }
+        } catch (Exception e) {
+            System.err.println("✖ [DATABASE ERROR] " + e.getMessage());
+        }
+
+        System.out.println("\n--------------------------------------------------");
+        System.out.println("💡 To launch the graphical Swing UI window on your desktop:");
+        System.out.println("   export DISPLAY=:0");
+        System.out.println("   mvn exec:java");
+        System.out.println();
+        System.out.println("   Or launch individual modules with display:");
+        System.out.println("   DISPLAY=:0 mvn exec:java -Dexec.mainClass=\"com.tourism.ui.customer.CatalogPanel\"");
+        System.out.println("   DISPLAY=:0 mvn exec:java -Dexec.mainClass=\"com.tourism.ui.customer.RecommendationsPanel\"");
+        System.out.println("==================================================");
     }
 
     private static void createAndShowGUI() {
