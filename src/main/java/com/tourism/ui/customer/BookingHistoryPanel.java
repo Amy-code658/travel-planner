@@ -21,6 +21,7 @@ public class BookingHistoryPanel extends JPanel {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
     private final int userId;
+    private JLabel notificationLabel;
     private final BookingService bookingService = new BookingService();
     private final DefaultTableModel tableModel;
     private final JTable table;
@@ -33,7 +34,22 @@ public class BookingHistoryPanel extends JPanel {
 
         JLabel heading = new JLabel("My Bookings");
         heading.setFont(heading.getFont().deriveFont(Font.BOLD, 20f));
-        add(heading, BorderLayout.NORTH);
+
+// Panel for heading and trip notification
+        JPanel topPanel = new JPanel(new BorderLayout(5, 8));
+        topPanel.add(heading, BorderLayout.NORTH);
+
+// Reminder for upcoming trips
+        notificationLabel = new JLabel();
+        notificationLabel.setOpaque(true);
+        notificationLabel.setBackground(new Color(255, 243, 205));
+        notificationLabel.setForeground(new Color(120, 80, 0));
+        notificationLabel.setBorder(
+                BorderFactory.createEmptyBorder(10, 12, 10, 12)
+        );
+
+        topPanel.add(notificationLabel, BorderLayout.SOUTH);
+        add(topPanel, BorderLayout.NORTH);
 
         String[] columns = {"ID", "Package", "Travel date", "Guests", "Total", "Status", "Refund"};
         tableModel = new DefaultTableModel(columns, 0);
@@ -45,12 +61,15 @@ public class BookingHistoryPanel extends JPanel {
 
         JButton refreshButton = new JButton("Refresh");
         JButton cancelButton = new JButton("Cancel selected booking");
+        JButton reviewButton = new JButton("Write Review");
         refreshButton.addActionListener(e -> loadBookings());
         cancelButton.addActionListener(e -> onCancel());
+        reviewButton.addActionListener(e -> onReview());
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         buttons.add(refreshButton);
         buttons.add(cancelButton);
+        buttons.add(reviewButton);
         add(buttons, BorderLayout.SOUTH);
 
         loadBookings();
@@ -65,6 +84,30 @@ public class BookingHistoryPanel extends JPanel {
             return;
         }
 
+        // Check for trips starting within the next 7 days
+        java.time.LocalDate today = java.time.LocalDate.now();
+        int upcomingTrips = 0;
+
+        for (Booking booking : bookings) {
+            java.time.LocalDate travelDate = booking.getTravelDate();
+
+            if (Booking.CONFIRMED.equals(booking.getStatus())
+                    && travelDate != null
+                    && !travelDate.isBefore(today)
+                    && !travelDate.isAfter(today.plusDays(7))) {
+                upcomingTrips++;
+            }
+        }
+
+        if (upcomingTrips > 0) {
+            notificationLabel.setText(
+                    "Reminder: You have " + upcomingTrips
+                            + " trip(s) departing within 7 days!"
+            );
+            notificationLabel.setVisible(true);
+        } else {
+            notificationLabel.setVisible(false);
+        }
         tableModel.setRowCount(0);
         for (Booking b : bookings) {
             String refund = Booking.CANCELLED.equals(b.getStatus())
@@ -89,7 +132,7 @@ public class BookingHistoryPanel extends JPanel {
         }
 
         Booking selected = bookings.get(row);
-        if (!Booking.CONFIRMED.equals(selected.getStatus())) {
+        if (Booking.CANCELLED.equals(selected.getStatus())) {
             JOptionPane.showMessageDialog(this, "Only confirmed bookings can be cancelled.");
             return;
         }
@@ -113,5 +156,34 @@ public class BookingHistoryPanel extends JPanel {
         } catch (BookingException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Cancellation failed", JOptionPane.ERROR_MESSAGE);
         }
+    }
+    private void onReview() {
+        int row = table.getSelectedRow();
+
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a booking first.");
+            return;
+        }
+
+        Booking selected = bookings.get(row);
+
+        if (!Booking.COMPLETED.equals(selected.getStatus())) {
+            JOptionPane.showMessageDialog(this,
+                    "You can only review trips that have already started and are not cancelled.");
+            return;
+        }
+
+        Window window = SwingUtilities.getWindowAncestor(this);
+        Frame owner = window instanceof Frame ? (Frame) window : null;
+
+        ReviewDialog dialog = new ReviewDialog(
+                owner,
+                userId,
+                selected.getPackageId(),
+                selected.getPackageTitle()
+        );
+
+        dialog.setVisible(true);
     }
 }
