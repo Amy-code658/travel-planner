@@ -16,6 +16,15 @@ public class DBConnection {
     private static DBConnection instance;
     private Connection connection;
 
+    static {
+        // Register shutdown hook to cleanly stop MySQL cleanup thread and avoid Maven exec linger warnings
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                com.mysql.cj.jdbc.AbandonedConnectionCleanupThread.checkedShutdown();
+            } catch (Exception ignored) {}
+        }));
+    }
+
     // Private constructor prevents external instantiation
     private DBConnection() {
         try {

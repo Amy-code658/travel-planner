@@ -19,17 +19,23 @@ import java.sql.Statement;
 public class Main {
 
     public static void main(String[] args) {
-        // If run in a headless environment without an X11/Wayland display, output CLI status
-        if (GraphicsEnvironment.isHeadless()) {
-            printHeadlessStatus();
-            return;
+        // Enable graphical display if DISPLAY or WAYLAND_DISPLAY is available in environment
+        String display = System.getenv("DISPLAY");
+        String wayland = System.getenv("WAYLAND_DISPLAY");
+        if ((display != null && !display.isEmpty()) || (wayland != null && !wayland.isEmpty())) {
+            System.setProperty("java.awt.headless", "false");
         }
 
-        // Set modern FlatLaf Look and Feel
-        FlatLightLaf.setup();
+        try {
+            // Set modern FlatLaf Look and Feel
+            FlatLightLaf.setup();
 
-        // Run UI on Event Dispatch Thread (EDT)
-        SwingUtilities.invokeLater(() -> new com.tourism.ui.auth.LoginFrame().setVisible(true));
+            // Run UI on Event Dispatch Thread (EDT)
+            SwingUtilities.invokeLater(() -> new com.tourism.ui.auth.LoginFrame().setVisible(true));
+        } catch (HeadlessException | AWTError e) {
+            // Fallback gracefully only if a graphical display is genuinely unavailable
+            printHeadlessStatus();
+        }
     }
 
     private static void printHeadlessStatus() {
