@@ -114,31 +114,16 @@ public class CustomerMainFrame extends JFrame {
         userPanel.add(logoutBtn);
         headerBar.add(userPanel, BorderLayout.EAST);
 
-        // Repaint panels when currency changes
+        // Update all active tabs when currency changes
         com.tourism.config.CurrencyManager.getInstance().addListener(() -> {
             SwingUtilities.invokeLater(() -> {
-                catalogPanel.revalidate();
-                catalogPanel.repaint();
-                recommendationsPanel.revalidate();
-                recommendationsPanel.repaint();
+                if (catalogPanel != null) catalogPanel.applyFiltersAsync();
+                if (recommendationsPanel != null) recommendationsPanel.executeRecommendationSearch();
+                if (bookingHistoryPanel != null) bookingHistoryPanel.loadBookings();
             });
         });
 
-        // Top KPI metrics row
-        JPanel kpiBar = new JPanel(new GridLayout(1, 4, 12, 0));
-        kpiBar.setBackground(ThemeConstants.BACKGROUND);
-        kpiBar.setBorder(new EmptyBorder(12, 20, 6, 20));
-
-        kpiBar.add(createKPICard("🌴", "Destinations", "6 Global Spots", "Bali, Alps, Kyoto & more", new Color(41, 128, 185)));
-        kpiBar.add(createKPICard("📦", "Curated Tours", "6 Packages", "Discounts up to 15% off", new Color(39, 174, 96)));
-        kpiBar.add(createKPICard("✈️", "Reservations", "Active Bookings", "View & manage in Tab 3", new Color(243, 156, 18)));
-        kpiBar.add(createKPICard("⭐", "Traveler Rating", "4.8 / 5.0", "Based on verified reviews", new Color(142, 68, 173)));
-
-        JPanel northWrapper = new JPanel(new BorderLayout());
-        northWrapper.add(headerBar, BorderLayout.NORTH);
-        northWrapper.add(kpiBar, BorderLayout.SOUTH);
-
-        contentPane.add(northWrapper, BorderLayout.NORTH);
+        contentPane.add(headerBar, BorderLayout.NORTH);
 
         // --- Tabbed Navigation ---
         tabbedPane = new JTabbedPane();

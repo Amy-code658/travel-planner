@@ -25,10 +25,13 @@ public class PackageCard extends JPanel {
 
     private JLabel matchScoreLabel;
     private JLabel matchReasonLabel;
+    private JLabel strikePrice;
+    private JLabel finalPriceLabel;
 
     public PackageCard(Package travelPackage) {
         this.travelPackage = travelPackage;
         initCardUI();
+        com.tourism.config.CurrencyManager.getInstance().addListener(this::updateCurrency);
     }
 
     private void initCardUI() {
@@ -247,7 +250,7 @@ public class PackageCard extends JPanel {
                 JPanel strikeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
                 strikeRow.setOpaque(false);
 
-                JLabel strikePrice = new JLabel("<html><strike>" + cm.format(basePrice) + "</strike></html>");
+                strikePrice = new JLabel("<html><strike>" + cm.format(basePrice) + "</strike></html>");
                 strikePrice.setFont(ThemeConstants.FONT_SMALL);
                 strikePrice.setForeground(ThemeConstants.TEXT_MUTED);
                 strikeRow.add(strikePrice);
@@ -263,7 +266,7 @@ public class PackageCard extends JPanel {
                 pricePanel.add(strikeRow);
             }
 
-            JLabel finalPriceLabel = new JLabel(cm.format(finalPrice));
+            finalPriceLabel = new JLabel(cm.format(finalPrice));
             finalPriceLabel.setFont(ThemeConstants.FONT_HEADER);
             finalPriceLabel.setForeground(ThemeConstants.PRIMARY_DARK);
             pricePanel.add(finalPriceLabel);
@@ -333,6 +336,23 @@ public class PackageCard extends JPanel {
         }
         revalidate();
         repaint();
+    }
+
+    /**
+     * Dynamically updates the price formatting when currency changes.
+     */
+    public void updateCurrency() {
+        if (travelPackage != null) {
+            com.tourism.config.CurrencyManager cm = com.tourism.config.CurrencyManager.getInstance();
+            if (strikePrice != null) {
+                strikePrice.setText("<html><strike>" + cm.format(travelPackage.getBasePrice()) + "</strike></html>");
+            }
+            if (finalPriceLabel != null) {
+                finalPriceLabel.setText(cm.format(travelPackage.getFinalPrice()));
+            }
+            revalidate();
+            repaint();
+        }
     }
 
     /**

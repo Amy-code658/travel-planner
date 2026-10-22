@@ -99,21 +99,7 @@ public class AdminMainFrame extends JFrame {
         userPanel.add(logoutBtn);
         headerBar.add(userPanel, BorderLayout.EAST);
 
-        // Top KPI metrics row
-        JPanel kpiBar = new JPanel(new GridLayout(1, 4, 12, 0));
-        kpiBar.setBackground(ThemeConstants.BACKGROUND);
-        kpiBar.setBorder(new EmptyBorder(12, 20, 6, 20));
-
-        kpiBar.add(createKPICard("👥", "Total Customers", "6 Accounts", "Registered users", new Color(41, 128, 185)));
-        kpiBar.add(createKPICard("📦", "Active Packages", "6 Tours", "Available in catalog", new Color(39, 174, 96)));
-        kpiBar.add(createKPICard("💳", "Fulfillment Rate", "80% Settled", "Payment verified", new Color(22, 160, 133)));
-        kpiBar.add(createKPICard("📊", "Top Destination", "Bali, Indonesia", "Leading booking volume", new Color(142, 68, 173)));
-
-        JPanel northWrapper = new JPanel(new BorderLayout());
-        northWrapper.add(headerBar, BorderLayout.NORTH);
-        northWrapper.add(kpiBar, BorderLayout.SOUTH);
-
-        contentPane.add(northWrapper, BorderLayout.NORTH);
+        contentPane.add(headerBar, BorderLayout.NORTH);
 
         // --- Tabs ---
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -144,6 +130,14 @@ public class AdminMainFrame extends JFrame {
             if (tabbedPane.getSelectedComponent() == customerBookingsPanel) {
                 customerBookingsPanel.loadData();
             }
+        });
+
+        // Update active panels on currency change
+        com.tourism.config.CurrencyManager.getInstance().addListener(() -> {
+            SwingUtilities.invokeLater(() -> {
+                customerBookingsPanel.loadData();
+                catalogPanel.applyFiltersAsync();
+            });
         });
 
         contentPane.add(tabbedPane, BorderLayout.CENTER);

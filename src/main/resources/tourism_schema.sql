@@ -90,9 +90,14 @@ INSERT INTO destinations (destination_id, name, country, description, category, 
 (2, 'Swiss Alps', 'Switzerland', 'Magnificent alpine region perfect for hiking, skiing, and breathtaking scenic trains.', 'Adventure', 180.00, 'alps.jpg'),
 (3, 'Kyoto', 'Japan', 'Ancient imperial capital famous for classical Buddhist temples, gardens, and shrines.', 'Culture', 110.00, 'kyoto.jpg'),
 (4, 'Paris', 'France', 'World capital of art, fashion, gastronomy, and culture with iconic monuments.', 'Luxury', 160.00, 'paris.jpg'),
-(5, 'Manali', 'India', 'High-altitude Himalayan resort town known for snow sports, pine forests, and rivers.', 'Nature', 40.00, 'manali.jpg'),
-(6, 'Goa', 'India', 'Vibrant coastal state known for pristine beaches, Portuguese heritage, and nightlife.', 'Beach', 45.00, 'goa.jpg')
-ON DUPLICATE KEY UPDATE destination_id=destination_id;
+(5, 'Kullu-Manali', 'India', 'Picturesque Himalayan valley famous for snow sports, pine forests, Beas river, and Rohtang Pass.', 'Nature', 45.00, 'manali.jpg'),
+(6, 'Goa', 'India', 'Vibrant coastal state known for pristine beaches, Portuguese heritage, and nightlife.', 'Beach', 45.00, 'goa.jpg'),
+(7, 'Shimla', 'India', 'Queen of Hills famous for colonial architecture, pine forests, Mall Road, and toy train rides.', 'Adventure', 50.00, 'shimla.jpg'),
+(8, 'Kerala', 'India', 'God\'s Own Country renowned for tranquil backwaters, tea gardens of Munnar, and Ayurvedic wellness.', 'Nature', 55.00, 'kerala.jpg'),
+(9, 'Vietnam', 'Vietnam', 'Breathtaking limestone karst islands of Ha Long Bay, vibrant street food, and imperial heritage.', 'Adventure', 40.00, 'vietnam.jpg'),
+(10, 'Maldives', 'Maldives', 'Iconic tropical paradise of private overwater villas, crystal lagoons, and vibrant coral reefs.', 'Luxury', 220.00, 'maldives.jpg'),
+(11, 'Egypt', 'Egypt', 'Cradle of ancient civilization boasting the Great Pyramids of Giza, the Sphinx, and grand Nile temples.', 'Culture', 70.00, 'egypt.jpg')
+ON DUPLICATE KEY UPDATE name=VALUES(name), country=VALUES(country), description=VALUES(description), category=VALUES(category), estimated_daily_cost=VALUES(estimated_daily_cost), image_url=VALUES(image_url);
 
 -- 3. Travel Packages
 INSERT INTO travel_packages (package_id, destination_id, title, description, duration_days, base_price, season, discount_percentage) VALUES
@@ -100,9 +105,14 @@ INSERT INTO travel_packages (package_id, destination_id, title, description, dur
 (2, 2, 'Swiss Alpine Explorer', 'Ride scenic mountain railways, hike the Matterhorn trails, and cruise Lake Geneva.', 6, 1200.00, 'Winter', 5.00),
 (3, 3, 'Kyoto Heritage & Zen Trails', 'Experience traditional tea ceremonies, visit the Fushimi Inari shrine and bamboo groves.', 4, 650.00, 'Spring', 0.00),
 (4, 4, 'Romantic Paris Luxury Tour', 'Cruise the River Seine, private tour of the Louvre, and dinner at the Eiffel Tower.', 5, 1100.00, 'All Season', 15.00),
-(5, 5, 'Himalayan Adventure in Manali', 'Solang Valley paragliding, river rafting, and trekking through pine valleys.', 4, 220.00, 'Summer', 0.00),
-(6, 6, 'Goan Coastal & Sunset Retreat', 'Beach hopping in North & South Goa, water sports, and historical church tours.', 3, 180.00, 'Winter', 10.00)
-ON DUPLICATE KEY UPDATE package_id=package_id;
+(5, 5, 'Kullu-Manali Himalayan Adventure', 'Paragliding in Solang Valley, river rafting in Kullu, and scenic treks through pine forests.', 4, 240.00, 'Summer', 10.00),
+(6, 6, 'Goan Coastal & Sunset Retreat', 'Beach hopping in North & South Goa, water sports, and historical church tours.', 3, 180.00, 'Winter', 10.00),
+(7, 7, 'Shimla Colonial Hills & Pine Trails', 'Ride the heritage toy train, explore Kufri snow viewpoint, and stroll along historic Ridge.', 4, 280.00, 'All Season', 5.00),
+(8, 8, 'Kerala Backwaters & Munnar Tea Mist', 'Private houseboat cruise on Alleppey backwaters, misty Munnar tea plantations, and spice walks.', 5, 380.00, 'Winter', 10.00),
+(9, 9, 'Vietnam Ha Long Bay & Hanoi Discovery', 'Explore Hanoi old quarter, overnight cruise on Ha Long Bay, and cave kayaking in Tam Coc.', 5, 420.00, 'All Season', 15.00),
+(10, 10, 'Maldives Luxury Overwater Paradise', 'Overwater villa retreat, turquoise lagoon swimming, house reef snorkeling, and sandbank dinner.', 4, 1250.00, 'Winter', 12.00),
+(11, 11, 'Ancient Egypt Pyramids & Nile Odyssey', 'Marvel at Giza Pyramids, visit the Grand Egyptian Museum, and sail to ancient Luxor temples.', 6, 690.00, 'Winter', 10.00)
+ON DUPLICATE KEY UPDATE destination_id=VALUES(destination_id), title=VALUES(title), description=VALUES(description), duration_days=VALUES(duration_days), base_price=VALUES(base_price), season=VALUES(season), discount_percentage=VALUES(discount_percentage);
 
 -- 4. Sample Itinerary Days for Package 1 (Bali)
 INSERT INTO itinerary_days (package_id, day_number, title, activity_description) VALUES
@@ -112,9 +122,48 @@ INSERT INTO itinerary_days (package_id, day_number, title, activity_description)
 (1, 4, 'Water Temples & Beach Club', 'Tour Ulun Danu Beratan Temple and evening dinner at Seminyak Beach club.'),
 (1, 5, 'Souvenirs & Departure', 'Morning leisure shopping at local craft markets and airport drop-off.');
 
--- Sample Itinerary Days for Package 5 (Manali)
+-- Sample Itinerary Days for Package 5 (Kullu-Manali)
 INSERT INTO itinerary_days (package_id, day_number, title, activity_description) VALUES
 (5, 1, 'Arrival in Manali', 'Check in to mountain resort, visit Hadimba Devi Temple, and evening stroll at Mall Road.'),
 (5, 2, 'Solang Valley Adventures', 'Enjoy paragliding, zorbing, and cable car rides in Solang Valley.'),
 (5, 3, 'Atal Tunnel & Sissu Excursion', 'Scenic drive through Atal Tunnel to the breathtaking waterfalls of Lahaul Valley.'),
 (5, 4, 'Old Manali & Departure', 'Visit Old Manali cafes, river crossing activity, and departure in the afternoon.');
+
+-- Sample Itinerary Days for Package 7 (Shimla)
+INSERT INTO itinerary_days (package_id, day_number, title, activity_description) VALUES
+(7, 1, 'Arrival in Shimla & Ridge Walk', 'Arrive in Shimla, check-in to heritage lodge, and stroll along Mall Road and The Ridge.'),
+(7, 2, 'Kufri Snow Point Excursion', 'Visit Kufri valley, enjoy scenic horse rides, and view snow-capped Himalayan peaks.'),
+(7, 3, 'Heritage Toy Train & Jakhoo Temple', 'Ride the UNESCO heritage Kalka-Shimla toy train and hike to panoramic Jakhoo Temple.'),
+(7, 4, 'Lakkar Bazaar & Departure', 'Morning wooden handicraft shopping at Lakkar Bazaar and afternoon departure.');
+
+-- Sample Itinerary Days for Package 8 (Kerala)
+INSERT INTO itinerary_days (package_id, day_number, title, activity_description) VALUES
+(8, 1, 'Cochin Arrival & Drive to Munnar', 'Airport pickup, scenic mountain drive past Cheeyappara Waterfalls to Munnar tea hills.'),
+(8, 2, 'Munnar Tea Gardens & Eravikulam', 'Guided tea factory walk, tasting session, and rare Nilgiri Tahr spotting at Eravikulam.'),
+(8, 3, 'Spice Plantations of Thekkady', 'Periyar spice garden tour, wildlife lake boat ride, and traditional Kathakali performance.'),
+(8, 4, 'Alleppey Deluxe Houseboat Cruise', 'Board private luxury houseboat, cruise tranquil backwaters, and savor freshly prepared Kerala cuisine.'),
+(8, 5, 'Marari Beach & Departure', 'Morning coastal coconut grove walk and transfer to Cochin International Airport.');
+
+-- Sample Itinerary Days for Package 9 (Vietnam)
+INSERT INTO itinerary_days (package_id, day_number, title, activity_description) VALUES
+(9, 1, 'Hanoi Old Quarter & Street Food', 'Cyclo ride through 36 historic guild streets, Hoan Kiem Lake, and authentic egg coffee tasting.'),
+(9, 2, 'Ha Long Bay Overnight Cruise', 'Transfer to coastal marina, board boutique cruise, kayak through karst islands, and sunset dining.'),
+(9, 3, 'Sung Sot Cave & Ninh Binh', 'Explore Sung Sot cave chambers, return to mainland, and drive to scenic Tam Coc riverways.'),
+(9, 4, 'Trang An Boat Tour & Ancient Capital', 'Bamboo rowing boat excursion through water caves and historic Hoa Lu ancient capital temples.'),
+(9, 5, 'Temple of Literature & Departure', 'Morning visit to 11th-century Temple of Literature and transfer to Noi Bai Airport.');
+
+-- Sample Itinerary Days for Package 10 (Maldives)
+INSERT INTO itinerary_days (package_id, day_number, title, activity_description) VALUES
+(10, 1, 'Speedboat to Island Resort', 'Scenic speedboat transfer across turquoise waters to 5-star private island water villa.'),
+(10, 2, 'House Reef Snorkel & Dolphin Cruise', 'Swim with marine turtles along coral walls, followed by sunset spinner dolphin cruise.'),
+(10, 3, 'Overwater Spa & Sandbank Dinner', 'Relaxing oceanfront spa treatment and private candlelit dinner on secluded desert sandbank.'),
+(10, 4, 'Lagoon Paddle-boarding & Departure', 'Morning clear-water kayaking, souvenir boutique shopping, and transfer to Male.');
+
+-- Sample Itinerary Days for Package 11 (Egypt)
+INSERT INTO itinerary_days (package_id, day_number, title, activity_description) VALUES
+(11, 1, 'Cairo Arrival & Giza Plateau', 'Check-in to historic Mena House hotel with panoramic views of the Giza Pyramids.'),
+(11, 2, 'Pyramids of Giza & The Sphinx', 'Private guided tour of the Great Pyramid of Khufu, the Sphinx, and camel safari.'),
+(11, 3, 'Grand Egyptian Museum & Bazaar', 'Visit Tutankhamun golden collection and wander through the labyrinthine Khan el-Khalili bazaar.'),
+(11, 4, 'Luxor Flight & Valley of the Kings', 'Short flight to Luxor, visit royal tomb chambers in Valley of the Kings, and Hatshepsut Temple.'),
+(11, 5, 'Karnak & Luxor Monumental Temples', 'Walk through the 134 towering stone columns of Karnak and floodlit Luxor Temple at dusk.'),
+(11, 6, 'Nile Felucca Sail & Return Flight', 'Traditional wooden felucca sail on the Nile River and departure transfer.');
