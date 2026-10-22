@@ -91,8 +91,25 @@ public class CustomerMainFrame extends JFrame {
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutBtn.addActionListener(e -> handleLogout());
 
+        JButton themeToggleBtn = new JButton("🌙 Theme");
+        themeToggleBtn.setFont(ThemeConstants.FONT_SMALL);
+        themeToggleBtn.setFocusPainted(false);
+        themeToggleBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        themeToggleBtn.addActionListener(e -> {
+            boolean isDark = UIManager.getLookAndFeel() instanceof com.formdev.flatlaf.FlatDarkLaf;
+            if (isDark) {
+                com.formdev.flatlaf.FlatLightLaf.setup();
+                themeToggleBtn.setText("🌙 Theme");
+            } else {
+                com.formdev.flatlaf.FlatDarkLaf.setup();
+                themeToggleBtn.setText("☀️ Theme");
+            }
+            com.formdev.flatlaf.FlatLaf.updateUI();
+        });
+
         userPanel.add(langCombo);
         userPanel.add(currCombo);
+        userPanel.add(themeToggleBtn);
         userPanel.add(welcomeLabel);
         userPanel.add(logoutBtn);
         headerBar.add(userPanel, BorderLayout.EAST);

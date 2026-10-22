@@ -189,7 +189,71 @@ public class CatalogPanel extends JPanel {
 
         northContainer.add(filterCard);
 
+        // Quick Filter Chips Row (Single-click discovery)
+        JPanel chipsRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        chipsRow.setOpaque(false);
+        chipsRow.setBorder(new EmptyBorder(6, 4, 0, 4));
+
+        JLabel chipHint = new JLabel("Quick Filters:");
+        chipHint.setFont(ThemeConstants.FONT_SMALL);
+        chipHint.setForeground(ThemeConstants.TEXT_MUTED);
+        chipsRow.add(chipHint);
+
+        chipsRow.add(createChipButton("🔥 Under $500", () -> {
+            priceCombo.setSelectedItem("Under $500");
+            categoryCombo.setSelectedIndex(0);
+        }));
+        chipsRow.add(createChipButton("🏖️ Beach Retreats", () -> {
+            selectCategoryIfPresent("Beach");
+            priceCombo.setSelectedIndex(0);
+        }));
+        chipsRow.add(createChipButton("🏔️ Mountain Adventures", () -> {
+            selectCategoryIfPresent("Adventure");
+            priceCombo.setSelectedIndex(0);
+        }));
+        chipsRow.add(createChipButton("🌿 Nature Escapes", () -> {
+            selectCategoryIfPresent("Nature");
+            priceCombo.setSelectedIndex(0);
+        }));
+        chipsRow.add(createChipButton("🏛️ Cultural Heritage", () -> {
+            selectCategoryIfPresent("Culture");
+            priceCombo.setSelectedIndex(0);
+        }));
+        chipsRow.add(createChipButton("✨ Luxury Tours", () -> {
+            selectCategoryIfPresent("Luxury");
+            priceCombo.setSelectedIndex(0);
+        }));
+
+        northContainer.add(chipsRow);
+
         return northContainer;
+    }
+
+    private JButton createChipButton(String text, Runnable action) {
+        JButton chip = new JButton(text);
+        chip.setFont(ThemeConstants.FONT_SMALL);
+        chip.setBackground(Color.WHITE);
+        chip.setForeground(ThemeConstants.TEXT_PRIMARY);
+        chip.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 225, 230), 1, true),
+                BorderFactory.createEmptyBorder(4, 10, 4, 10)
+        ));
+        chip.setFocusPainted(false);
+        chip.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        chip.addActionListener(e -> {
+            action.run();
+            applyFiltersAsync();
+        });
+        return chip;
+    }
+
+    private void selectCategoryIfPresent(String cat) {
+        for (int i = 0; i < categoryCombo.getItemCount(); i++) {
+            if (cat.equalsIgnoreCase(categoryCombo.getItemAt(i))) {
+                categoryCombo.setSelectedIndex(i);
+                return;
+            }
+        }
     }
 
     /**
