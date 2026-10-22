@@ -59,9 +59,25 @@ public class CustomerMainFrame extends JFrame {
         brandLabel.setForeground(Color.WHITE);
         headerBar.add(brandLabel, BorderLayout.WEST);
 
-        // User Greeting & Logout
-        JPanel userPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+        // User Greeting, Language, Currency & Logout
+        JPanel userPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         userPanel.setOpaque(false);
+
+        // Language Chooser Dropdown
+        JComboBox<com.tourism.config.LanguageManager.Language> langCombo = new JComboBox<>(com.tourism.config.LanguageManager.Language.values());
+        langCombo.setFont(ThemeConstants.FONT_SMALL);
+        langCombo.setSelectedItem(com.tourism.config.LanguageManager.getInstance().getCurrentLanguage());
+        langCombo.addActionListener(e -> {
+            com.tourism.config.LanguageManager.getInstance().setLanguage((com.tourism.config.LanguageManager.Language) langCombo.getSelectedItem());
+        });
+
+        // Currency Chooser Dropdown
+        JComboBox<com.tourism.config.CurrencyManager.Currency> currCombo = new JComboBox<>(com.tourism.config.CurrencyManager.Currency.values());
+        currCombo.setFont(ThemeConstants.FONT_SMALL);
+        currCombo.setSelectedItem(com.tourism.config.CurrencyManager.getInstance().getCurrentCurrency());
+        currCombo.addActionListener(e -> {
+            com.tourism.config.CurrencyManager.getInstance().setCurrency((com.tourism.config.CurrencyManager.Currency) currCombo.getSelectedItem());
+        });
 
         JLabel welcomeLabel = new JLabel("Welcome, " + customer.getFullName());
         welcomeLabel.setFont(ThemeConstants.FONT_BOLD);
@@ -75,9 +91,21 @@ public class CustomerMainFrame extends JFrame {
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutBtn.addActionListener(e -> handleLogout());
 
+        userPanel.add(langCombo);
+        userPanel.add(currCombo);
         userPanel.add(welcomeLabel);
         userPanel.add(logoutBtn);
         headerBar.add(userPanel, BorderLayout.EAST);
+
+        // Repaint panels when currency changes
+        com.tourism.config.CurrencyManager.getInstance().addListener(() -> {
+            SwingUtilities.invokeLater(() -> {
+                catalogPanel.revalidate();
+                catalogPanel.repaint();
+                recommendationsPanel.revalidate();
+                recommendationsPanel.repaint();
+            });
+        });
 
         // Top KPI metrics row
         JPanel kpiBar = new JPanel(new GridLayout(1, 4, 12, 0));

@@ -241,11 +241,13 @@ public class PackageCard extends JPanel {
             double finalPrice = travelPackage.getFinalPrice();
             double discount = travelPackage.getDiscountPercentage();
 
+            com.tourism.config.CurrencyManager cm = com.tourism.config.CurrencyManager.getInstance();
+
             if (discount > 0) {
                 JPanel strikeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
                 strikeRow.setOpaque(false);
 
-                JLabel strikePrice = new JLabel("<html><strike>$" + String.format("%.2f", basePrice) + "</strike></html>");
+                JLabel strikePrice = new JLabel("<html><strike>" + cm.format(basePrice) + "</strike></html>");
                 strikePrice.setFont(ThemeConstants.FONT_SMALL);
                 strikePrice.setForeground(ThemeConstants.TEXT_MUTED);
                 strikeRow.add(strikePrice);
@@ -261,7 +263,7 @@ public class PackageCard extends JPanel {
                 pricePanel.add(strikeRow);
             }
 
-            JLabel finalPriceLabel = new JLabel("$" + String.format("%.2f", finalPrice));
+            JLabel finalPriceLabel = new JLabel(cm.format(finalPrice));
             finalPriceLabel.setFont(ThemeConstants.FONT_HEADER);
             finalPriceLabel.setForeground(ThemeConstants.PRIMARY_DARK);
             pricePanel.add(finalPriceLabel);

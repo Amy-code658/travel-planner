@@ -52,6 +52,23 @@ public class RenderUIScreenshots {
                 Thread.sleep(600);
                 saveComponentImage(customerFrame.getContentPane(), new File(outDir + "ui_customer_recommendations.png"));
             }
+
+            // 3. Render Itinerary Dialog for Package 1 (Bali Tropical Escape)
+            com.tourism.dao.PackageDAO packageDAO = new com.tourism.dao.PackageDAO();
+            com.tourism.model.Package baliPkg = packageDAO.findById(1).orElse(null);
+            if (baliPkg != null) {
+                com.tourism.service.ItineraryService itineraryService = new com.tourism.service.ItineraryService();
+                java.util.List<com.tourism.model.ItineraryDay> days = itineraryService.getItineraryForPackage(baliPkg);
+                com.tourism.service.ItineraryService.ItemizedCost cost = itineraryService.calculateCostBreakdown(baliPkg, 1, baliPkg.getDurationDays());
+                com.tourism.ui.customer.ItineraryDialog itinDialog = new com.tourism.ui.customer.ItineraryDialog(customerFrame, baliPkg, days, cost);
+                itinDialog.addNotify();
+                itinDialog.setSize(750, 680);
+                itinDialog.validate();
+                Thread.sleep(500);
+                saveComponentImage(itinDialog.getContentPane(), new File(outDir + "ui_itinerary_dialog.png"));
+                itinDialog.dispose();
+            }
+
             customerFrame.dispose();
 
             // 3. Render Admin Main Frame (Reports & Analytics)

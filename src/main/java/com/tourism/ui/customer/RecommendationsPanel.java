@@ -226,13 +226,11 @@ public class RecommendationsPanel extends JPanel {
 
             // Hook into "Book Now" to trigger booking flow
             card.setOnBookNowListener(selectedPkg -> {
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Ready to book: " + selectedPkg.getTitle() + "\nGuests: " + guests + "\nTotal: $" + String.format("%.2f", sp.getEstimatedCost()) +
-                    "\n\n(Connecting to Dev 5's BookingDialog)",
-                    "Booking Initiation",
-                    JOptionPane.INFORMATION_MESSAGE
-                );
+                int uid = (com.tourism.model.UserSession.getInstance().getCurrentUser() != null)
+                        ? com.tourism.model.UserSession.getInstance().getCurrentUser().getUserId()
+                        : 2;
+                Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+                new BookingDialog(owner, selectedPkg, uid).setVisible(true);
             });
 
             resultsContainer.add(card);

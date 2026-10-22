@@ -202,8 +202,9 @@ public class BookingDialog extends JDialog {
     private void updateTotal() {
         int guests = (Integer) guestSpinner.getValue();
         double total = bookingService.calculateTotal(pkg.getBasePrice(), guests, pkg.getDiscountPercentage());
-        totalLabel.setText(String.format("Rs. %.2f", total));
-        payButton.setText(String.format("Pay Rs. %.2f", total));
+        String formatted = com.tourism.config.CurrencyManager.getInstance().format(total);
+        totalLabel.setText(formatted);
+        payButton.setText("Pay " + formatted);
     }
 
     // Reads the three combo boxes and builds a LocalDate (31 Feb throws DateTimeException)
@@ -270,9 +271,10 @@ public class BookingDialog extends JDialog {
 
     private void showSuccess(Booking booking, PaymentMethod payment) {
         confirmedBooking = booking;
+        String formattedAmount = com.tourism.config.CurrencyManager.getInstance().format(booking.getTotalCost());
         JOptionPane.showMessageDialog(this,
-                String.format("Payment successful!%nBooking ID: %d%nAmount paid: Rs. %.2f%nPaid using: %s",
-                        booking.getBookingId(), booking.getTotalCost(), payment.getDescription()),
+                String.format("Payment successful!%nBooking ID: %d%nAmount paid: %s%nPaid using: %s",
+                        booking.getBookingId(), formattedAmount, payment.getDescription()),
                 "Booking confirmed", JOptionPane.INFORMATION_MESSAGE);
         dispose();
     }

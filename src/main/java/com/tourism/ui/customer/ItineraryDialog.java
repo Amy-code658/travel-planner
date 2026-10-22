@@ -29,12 +29,45 @@ public class ItineraryDialog extends JDialog {
         setLayout(new BorderLayout());
         getContentPane().setBackground(ThemeConstants.BACKGROUND);
 
-        // Header Panel
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(ThemeConstants.PRIMARY_COLOR);
-        headerPanel.setBorder(new EmptyBorder(16, 20, 16, 20));
-
+        // Header Panel with Real Destination Photograph
         Destination dest = (pkg != null) ? pkg.getDestination() : null;
+        String imageUrl = (dest != null && dest.getImageUrl() != null) ? dest.getImageUrl().trim() : "bali.jpg";
+        Image heroImage = null;
+        try {
+            java.net.URL res = getClass().getResource("/images/" + imageUrl);
+            if (res != null) {
+                heroImage = new ImageIcon(res).getImage();
+            }
+        } catch (Exception ignored) {}
+
+        final Image finalHero = heroImage;
+        JPanel headerPanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int w = getWidth();
+                int h = getHeight();
+                if (finalHero != null) {
+                    g2.drawImage(finalHero, 0, 0, w, h, this);
+                    GradientPaint overlay = new GradientPaint(
+                            0, 0, new Color(0, 0, 0, 110),
+                            0, h, new Color(0, 0, 0, 210)
+                    );
+                    g2.setPaint(overlay);
+                    g2.fillRect(0, 0, w, h);
+                } else {
+                    GradientPaint grad = new GradientPaint(0, 0, ThemeConstants.PRIMARY_DARK, 0, h, ThemeConstants.PRIMARY_COLOR);
+                    g2.setPaint(grad);
+                    g2.fillRect(0, 0, w, h);
+                }
+                g2.dispose();
+            }
+        };
+        headerPanel.setPreferredSize(new Dimension(750, 145));
+        headerPanel.setBorder(new EmptyBorder(22, 24, 22, 24));
+
         String destInfo = (dest != null) ? dest.getName() + ", " + dest.getCountry() + " (" + dest.getCategory() + ")" : "Custom Tour";
         String titleText = (pkg != null) ? pkg.getTitle() : "Travel Itinerary";
 
@@ -42,9 +75,9 @@ public class ItineraryDialog extends JDialog {
         titleLabel.setFont(ThemeConstants.FONT_HEADER_LARGE);
         titleLabel.setForeground(Color.WHITE);
 
-        JLabel subLabel = new JLabel(destInfo + " • " + (pkg != null ? pkg.getDurationDays() : 0) + " Days");
+        JLabel subLabel = new JLabel("📸 " + destInfo + " • ⏱ " + (pkg != null ? pkg.getDurationDays() : 0) + " Days");
         subLabel.setFont(ThemeConstants.FONT_SUBHEADER);
-        subLabel.setForeground(new Color(230, 240, 255));
+        subLabel.setForeground(new Color(240, 245, 255));
 
         headerPanel.add(titleLabel, BorderLayout.NORTH);
         headerPanel.add(subLabel, BorderLayout.SOUTH);
@@ -63,7 +96,7 @@ public class ItineraryDialog extends JDialog {
             daysListPanel.add(emptyLabel);
         } else {
             for (ItineraryDay day : itineraryDays) {
-                daysListPanel.add(createDayCard(day));
+                daysListPanel.add(createDayCard(day, imageUrl));
                 daysListPanel.add(Box.createRigidArea(new Dimension(0, 12)));
             }
         }
@@ -85,12 +118,13 @@ public class ItineraryDialog extends JDialog {
             JPanel costGrid = new JPanel(new GridLayout(2, 3, 16, 6));
             costGrid.setOpaque(false);
 
-            costGrid.add(createMetricLabel("Package Base", "$" + String.format("%.2f", cost.getNetPackageCost())));
-            costGrid.add(createMetricLabel("Daily Allowance", "$" + String.format("%.2f", cost.getTotalAllowance())));
-            costGrid.add(createMetricLabel("Estimated Total", "$" + String.format("%.2f", cost.getGrandTotal()), ThemeConstants.ACCENT_COLOR));
+            com.tourism.config.CurrencyManager cm = com.tourism.config.CurrencyManager.getInstance();
+            costGrid.add(createMetricLabel("Package Base", cm.format(cost.getNetPackageCost())));
+            costGrid.add(createMetricLabel("Daily Allowance", cm.format(cost.getTotalAllowance())));
+            costGrid.add(createMetricLabel("Estimated Total", cm.format(cost.getGrandTotal()), ThemeConstants.ACCENT_COLOR));
 
-            costGrid.add(createSubMetricLabel("(" + cost.getGuests() + " guests @ $" + String.format("%.2f", cost.getBasePricePerPerson()) + "/person)"));
-            costGrid.add(createSubMetricLabel("(" + cost.getDays() + " days @ $" + String.format("%.2f", cost.getDailyAllowancePerPerson()) + "/day/person)"));
+            costGrid.add(createSubMetricLabel("(" + cost.getGuests() + " guests @ " + cm.format(cost.getBasePricePerPerson()) + "/person)"));
+            costGrid.add(createSubMetricLabel("(" + cost.getDays() + " days @ " + cm.format(cost.getDailyAllowancePerPerson()) + "/day/person)"));
             costGrid.add(createSubMetricLabel("All-inclusive projection"));
 
             footerPanel.add(costGrid, BorderLayout.CENTER);
@@ -112,26 +146,51 @@ public class ItineraryDialog extends JDialog {
         add(footerPanel, BorderLayout.SOUTH);
     }
 
-    private JPanel createDayCard(ItineraryDay day) {
-        JPanel card = new JPanel(new BorderLayout(12, 6));
+    private JPanel createDayCard(ItineraryDay day, String imageUrl) {
+        JPanel card = new JPanel(new BorderLayout(14, 8));
         card.setBackground(ThemeConstants.CARD_BG);
         card.setBorder(new CompoundBorder(
             new LineBorder(new Color(225, 230, 235), 1, true),
             new EmptyBorder(12, 14, 12, 14)
         ));
 
-        // Day Number Badge
+        // Left Side: Day Badge + Scenic Photo Thumbnail
+        JPanel leftSide = new JPanel();
+        leftSide.setLayout(new BoxLayout(leftSide, BoxLayout.Y_AXIS));
+        leftSide.setOpaque(false);
+
         JLabel badge = new JLabel("Day " + day.getDayNumber(), SwingConstants.CENTER);
         badge.setOpaque(true);
         badge.setBackground(ThemeConstants.PRIMARY_COLOR);
         badge.setForeground(Color.WHITE);
         badge.setFont(ThemeConstants.FONT_BOLD);
-        badge.setPreferredSize(new Dimension(65, 30));
+        badge.setPreferredSize(new Dimension(75, 26));
+        badge.setMaximumSize(new Dimension(75, 26));
+        badge.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JPanel badgeWrap = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        badgeWrap.setOpaque(false);
-        badgeWrap.add(badge);
-        card.add(badgeWrap, BorderLayout.WEST);
+        // Thumbnail image
+        Image placeThumb = null;
+        try {
+            java.net.URL res = getClass().getResource("/images/" + imageUrl);
+            if (res != null) {
+                placeThumb = new ImageIcon(res).getImage().getScaledInstance(75, 55, Image.SCALE_SMOOTH);
+            }
+        } catch (Exception ignored) {}
+
+        JLabel thumbLabel;
+        if (placeThumb != null) {
+            thumbLabel = new JLabel(new ImageIcon(placeThumb));
+            thumbLabel.setBorder(new LineBorder(new Color(210, 215, 225), 1, true));
+        } else {
+            thumbLabel = new JLabel("📍 Tour", SwingConstants.CENTER);
+            thumbLabel.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        }
+        thumbLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        leftSide.add(badge);
+        leftSide.add(Box.createRigidArea(new Dimension(0, 6)));
+        leftSide.add(thumbLabel);
+        card.add(leftSide, BorderLayout.WEST);
 
         // Content
         JPanel textPanel = new JPanel(new BorderLayout(0, 4));
@@ -139,7 +198,7 @@ public class ItineraryDialog extends JDialog {
 
         JLabel titleLabel = new JLabel(day.getTitle());
         titleLabel.setFont(ThemeConstants.FONT_SUBHEADER);
-        titleLabel.setForeground(ThemeConstants.TEXT_PRIMARY);
+        titleLabel.setForeground(ThemeConstants.PRIMARY_DARK);
 
         JTextArea descArea = new JTextArea(day.getActivityDescription());
         descArea.setFont(ThemeConstants.FONT_BODY);
