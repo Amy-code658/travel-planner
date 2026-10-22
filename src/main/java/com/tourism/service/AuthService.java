@@ -1,10 +1,12 @@
 package com.tourism.service;
 
+import com.tourism.config.DBConnection;
 import com.tourism.dao.UserDAO;
 import com.tourism.model.User;
 import com.tourism.model.UserSession;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.sql.Connection;
 import java.util.regex.Pattern;
 
 /**
@@ -37,6 +39,11 @@ public class AuthService {
         }
         if (plainPassword == null || plainPassword.isEmpty()) {
             return AuthResult.failure("Please enter your password.");
+        }
+
+        Connection conn = DBConnection.getInstance().getConnection();
+        if (conn == null) {
+            return AuthResult.failure("Cannot connect to MySQL database.\nPlease verify MySQL is running on port 3306 and 'tourism_db' exists.");
         }
 
         User user = userDAO.findByEmail(email.trim());
@@ -88,6 +95,11 @@ public class AuthService {
 
         if (!plainPassword.equals(confirmPassword)) {
             return AuthResult.failure("Passwords do not match. Please re-enter.");
+        }
+
+        Connection conn = DBConnection.getInstance().getConnection();
+        if (conn == null) {
+            return AuthResult.failure("Cannot connect to MySQL database.\nPlease verify MySQL is running on port 3306 and 'tourism_db' exists.");
         }
 
         // Check if email already registered

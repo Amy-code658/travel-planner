@@ -17,6 +17,10 @@ public class Package {
     // Optional joined destination for UI display convenience
     private Destination destination;
 
+    // Associated Hotel and Transportation options (Class Diagram composition)
+    private Hotel hotel;
+    private Transportation transportation;
+
     public Package() {}
 
     public Package(int packageId, int destinationId, String title, String description, int durationDays, double basePrice, String season, double discountPercentage, boolean active) {
@@ -120,6 +124,22 @@ public class Package {
 
     public void setDestination(Destination destination) {
         this.destination = destination;
+    }
+
+    public Hotel getHotel() {
+        return hotel;
+    }
+
+    public void setHotel(Hotel hotel) {
+        this.hotel = hotel;
+    }
+
+    public Transportation getTransportation() {
+        return transportation;
+    }
+
+    public void setTransportation(Transportation transportation) {
+        this.transportation = transportation;
     }
 
     /**

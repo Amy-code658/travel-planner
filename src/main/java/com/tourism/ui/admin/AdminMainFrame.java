@@ -119,19 +119,27 @@ public class AdminMainFrame extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(ThemeConstants.FONT_BOLD);
 
-        // Tab 1: Customer Roster, Package Selections & Payment Settlements (Primary Enterprise View)
-        CustomerBookingsAdminPanel customerBookingsPanel = new CustomerBookingsAdminPanel();
-        tabbedPane.addTab("  👥 Customers & Bookings  ", customerBookingsPanel);
+        // Tab 1: Inventory Management - Destinations & Packages CRUD (Dev 6 - Pius Varghese)
+        InventoryManagementPanel inventoryPanel = new InventoryManagementPanel();
+        tabbedPane.addTab("  📦 Inventory Management  ", inventoryPanel);
 
-        // Tab 2: Visual Reports & Charts
+        // Tab 2: Booking Oversight & Status Filtering (Dev 6 - Pius Varghese)
+        BookingOversightPanel oversightPanel = new BookingOversightPanel();
+        tabbedPane.addTab("  📋 Booking Oversight  ", oversightPanel);
+
+        // Tab 3: Customer Roster, Package Selections & Payment Settlements
+        CustomerBookingsAdminPanel customerBookingsPanel = new CustomerBookingsAdminPanel();
+        tabbedPane.addTab("  👥 Customer Roster  ", customerBookingsPanel);
+
+        // Tab 4: Visual Reports & Charts (Dev 7 - Ashwin V)
         ReportsPanel reportsPanel = new ReportsPanel();
         tabbedPane.addTab("  📊 Reports & Visual Analytics  ", reportsPanel);
 
-        // Tab 3: Catalog Overview
+        // Tab 5: Catalog Overview (Dev 3 - Aein Shaji)
         CatalogPanel catalogPanel = new CatalogPanel();
         tabbedPane.addTab("  🌴 Package Overview  ", catalogPanel);
 
-        // Auto-refresh roster when switching tabs
+        // Auto-refresh panels when switching tabs
         tabbedPane.addChangeListener(e -> {
             if (tabbedPane.getSelectedComponent() == customerBookingsPanel) {
                 customerBookingsPanel.loadData();

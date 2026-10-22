@@ -49,7 +49,14 @@ public class VerifyAuth {
         if (loginRes.isSuccess()) {
             System.out.println("✔ AuthService.login('admin@tourism.com', 'admin123') SUCCESS: " + loginRes.getMessage());
         } else {
-            System.err.println("❌ AuthService.login failed: " + loginRes.getMessage());
+            System.err.println("❌ AuthService.login admin failed: " + loginRes.getMessage());
+        }
+
+        AuthService.AuthResult loginJohn = auth.login("john@gmail.com", "user123");
+        if (loginJohn.isSuccess()) {
+            System.out.println("✔ AuthService.login('john@gmail.com', 'user123') SUCCESS: " + loginJohn.getMessage());
+        } else {
+            System.err.println("❌ AuthService.login john failed: " + loginJohn.getMessage());
         }
 
         // Test AuthService Registration

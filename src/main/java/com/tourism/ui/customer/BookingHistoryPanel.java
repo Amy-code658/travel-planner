@@ -144,16 +144,17 @@ public class BookingHistoryPanel extends JPanel {
         } else {
             notificationLabel.setVisible(false);
         }
+        com.tourism.config.CurrencyManager cm = com.tourism.config.CurrencyManager.getInstance();
         tableModel.setRowCount(0);
         for (Booking b : bookings) {
             String refund = Booking.CANCELLED.equals(b.getStatus())
-                    ? String.format("Rs. %.2f", b.getRefundAmount()) : "-";
+                    ? cm.format(b.getRefundAmount()) : "-";
             tableModel.addRow(new Object[]{
                     b.getBookingId(),
                     b.getPackageTitle(),
                     b.getTravelDate().format(DATE_FORMAT),
                     b.getNumberOfGuests(),
-                    String.format("Rs. %.2f", b.getTotalCost()),
+                    cm.format(b.getTotalCost()),
                     b.getStatus(),
                     refund
             });
@@ -174,10 +175,11 @@ public class BookingHistoryPanel extends JPanel {
         }
 
         double refund = bookingService.calculateRefund(selected);
+        com.tourism.config.CurrencyManager cm = com.tourism.config.CurrencyManager.getInstance();
         String message = String.format(
-                "Cancel booking #%d (%s)?%n%nYou will get a refund of Rs. %.2f.%n"
+                "Cancel booking #%d (%s)?%n%nYou will get a refund of %s.%n"
               + "Refund policy: 80%% if cancelled more than 48 hours before the trip, otherwise no refund.",
-                selected.getBookingId(), selected.getPackageTitle(), refund);
+                selected.getBookingId(), selected.getPackageTitle(), cm.format(refund));
 
         int choice = JOptionPane.showConfirmDialog(this, message, "Confirm cancellation",
                 JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -187,7 +189,7 @@ public class BookingHistoryPanel extends JPanel {
 
         try {
             double refunded = bookingService.cancelBooking(selected.getBookingId(), userId);
-            JOptionPane.showMessageDialog(this, String.format("Booking cancelled. Refund: Rs. %.2f", refunded));
+            JOptionPane.showMessageDialog(this, "Booking cancelled. Refund: " + cm.format(refunded));
             loadBookings();
         } catch (BookingException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Cancellation failed", JOptionPane.ERROR_MESSAGE);

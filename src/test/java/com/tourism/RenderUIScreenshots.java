@@ -71,7 +71,7 @@ public class RenderUIScreenshots {
 
             customerFrame.dispose();
 
-            // 4. Render Admin Main Frame (Tab 0: Customer Roster & Bookings)
+            // 4. Render Admin Main Frame
             User admin = userDAO.findByEmail("admin@tourism.com");
             if (admin == null) {
                 admin = new User(1, "System Administrator", "admin@tourism.com", "", "ADMIN", "9998887770");
@@ -81,6 +81,14 @@ public class RenderUIScreenshots {
             adminFrame.setSize(1150, 750);
             adminFrame.validate();
             Thread.sleep(800);
+
+            JTabbedPane adminTabs = findTabbedPane(adminFrame);
+            // Tab 2: Customer Roster
+            if (adminTabs != null && adminTabs.getTabCount() > 2) {
+                adminTabs.setSelectedIndex(2);
+                adminFrame.validate();
+                Thread.sleep(600);
+            }
             saveComponentImage(adminFrame.getContentPane(), new File(outDir + "ui_admin_customers.png"));
 
             // Render Customer Dossier Dialog
@@ -97,10 +105,9 @@ public class RenderUIScreenshots {
                 dossierDialog.dispose();
             }
 
-            // Switch to Admin Tab 1 (Reports & Visual Analytics)
-            JTabbedPane adminTabs = findTabbedPane(adminFrame);
-            if (adminTabs != null && adminTabs.getTabCount() > 1) {
-                adminTabs.setSelectedIndex(1);
+            // Tab 3: Reports & Visual Analytics
+            if (adminTabs != null && adminTabs.getTabCount() > 3) {
+                adminTabs.setSelectedIndex(3);
                 adminFrame.validate();
                 Thread.sleep(600);
                 saveComponentImage(adminFrame.getContentPane(), new File(outDir + "ui_admin_reports.png"));

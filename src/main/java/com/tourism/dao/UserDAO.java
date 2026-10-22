@@ -23,6 +23,10 @@ public class UserDAO {
 
         try {
             Connection conn = DBConnection.getInstance().getConnection();
+            if (conn == null) {
+                System.err.println("❌ [UserDAO] Database connection is null. Please ensure MySQL is running.");
+                return null;
+            }
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, email.trim());
 
@@ -51,6 +55,10 @@ public class UserDAO {
 
         try {
             Connection conn = DBConnection.getInstance().getConnection();
+            if (conn == null) {
+                System.err.println("❌ [UserDAO] Database connection is null. Please ensure MySQL is running.");
+                return null;
+            }
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setInt(1, userId);
 
@@ -78,6 +86,10 @@ public class UserDAO {
 
         try {
             Connection conn = DBConnection.getInstance().getConnection();
+            if (conn == null) {
+                System.err.println("❌ [UserDAO] Database connection is null. Please ensure MySQL is running.");
+                return false;
+            }
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, email.trim());
                 try (ResultSet rs = stmt.executeQuery()) {
@@ -103,6 +115,10 @@ public class UserDAO {
 
         try {
             Connection conn = DBConnection.getInstance().getConnection();
+            if (conn == null) {
+                System.err.println("❌ [UserDAO] Database connection is null. Please ensure MySQL is running.");
+                return -1;
+            }
             try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, user.getFullName());
                 stmt.setString(2, user.getEmail().trim().toLowerCase());
@@ -139,6 +155,10 @@ public class UserDAO {
 
         try {
             Connection conn = DBConnection.getInstance().getConnection();
+            if (conn == null) {
+                System.err.println("❌ [UserDAO] Database connection is null. Please ensure MySQL is running.");
+                return false;
+            }
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, user.getFullName());
                 stmt.setString(2, user.getPhone());
@@ -165,6 +185,10 @@ public class UserDAO {
 
         try {
             Connection conn = DBConnection.getInstance().getConnection();
+            if (conn == null) {
+                System.err.println("❌ [UserDAO] Database connection is null. Please ensure MySQL is running.");
+                return false;
+            }
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, newPasswordHash);
                 stmt.setInt(2, userId);

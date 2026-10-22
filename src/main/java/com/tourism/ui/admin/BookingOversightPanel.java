@@ -75,10 +75,11 @@ public class BookingOversightPanel extends JPanel {
                 try {
                     List<Booking> bookings = get();
                     model.setRowCount(0);
+                    com.tourism.config.CurrencyManager cm = com.tourism.config.CurrencyManager.getInstance();
                     for (Booking b : bookings) {
                         model.addRow(new Object[]{b.getBookingId(), b.getUserId(), b.getPackageTitle(),
-                                b.getTravelDate(), b.getNumberOfGuests(), String.format("$%.2f", b.getTotalCost()),
-                                b.getBookingStatus(), String.format("$%.2f", b.getRefundAmount()),
+                                b.getTravelDate(), b.getNumberOfGuests(), cm.format(b.getTotalCost()),
+                                b.getBookingStatus(), b.getRefundAmount() > 0 ? cm.format(b.getRefundAmount()) : "-",
                                 b.getBookingDate() == null ? "" : b.getBookingDate().format(DATE_TIME)});
                     }
                     statusLabel.setText(bookings.size() + " booking(s) shown.");

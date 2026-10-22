@@ -78,7 +78,7 @@ public class BookingDialog extends JDialog {
         title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
         panel.add(title);
         panel.add(new JLabel("Duration: " + pkg.getDurationDays() + " days"));
-        panel.add(new JLabel(String.format("Price per person: Rs. %.2f", pkg.getBasePrice())));
+        panel.add(new JLabel("Price per person: " + com.tourism.config.CurrencyManager.getInstance().format(pkg.getBasePrice())));
         panel.add(new JLabel(String.format("Discount: %.0f%%", pkg.getDiscountPercentage())));
         return panel;
     }

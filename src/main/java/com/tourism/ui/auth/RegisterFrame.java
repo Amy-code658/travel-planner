@@ -192,23 +192,34 @@ public class RegisterFrame extends JFrame {
         registerButton.setEnabled(false);
         registerButton.setText("Registering...");
 
-        AuthService.AuthResult result = authService.register(fullName, email, phone, password, confirmPassword);
+        try {
+            AuthService.AuthResult result = authService.register(fullName, email, phone, password, confirmPassword);
 
-        if (result.isSuccess()) {
-            JOptionPane.showMessageDialog(this,
-                    "Account created successfully!\nYou can now log in.",
-                    "Registration Successful",
-                    JOptionPane.INFORMATION_MESSAGE);
+            if (result.isSuccess()) {
+                JOptionPane.showMessageDialog(this,
+                        "Account created successfully!\nYou can now log in.",
+                        "Registration Successful",
+                        JOptionPane.INFORMATION_MESSAGE);
 
-            new LoginFrame().setVisible(true);
-            dispose();
-        } else {
+                new LoginFrame().setVisible(true);
+                dispose();
+            } else {
+                registerButton.setEnabled(true);
+                registerButton.setText("Create Account");
+                JOptionPane.showMessageDialog(this,
+                        result.getMessage(),
+                        "Validation Error",
+                        JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (Throwable t) {
             registerButton.setEnabled(true);
             registerButton.setText("Create Account");
             JOptionPane.showMessageDialog(this,
-                    result.getMessage(),
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE);
+                    "An unexpected error occurred during registration:\n" + t.getMessage()
+                    + "\n\nPlease check your MySQL database connection (port 3306).",
+                    "Registration Error",
+                    JOptionPane.ERROR_MESSAGE);
+            t.printStackTrace();
         }
     }
 }

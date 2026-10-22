@@ -80,9 +80,9 @@ CREATE TABLE IF NOT EXISTS reviews (
 
 -- 1. Default Users (Pass: admin123 and user123 hashed via BCrypt)
 INSERT INTO users (user_id, full_name, email, password_hash, role, phone) VALUES
-(1, 'System Administrator', 'admin@tourism.com', '$2a$10$wK1F5wEw3Xf0nI/b3D8QZOHk4V5d7L7R5oA1Z7s5W2v3n4K5e6X7.', 'ADMIN', '9998887770'),
-(2, 'John Doe', 'john@gmail.com', '$2a$10$tZ8J0m2V4Q5P6L7W8E9R1u3Y5T7I9O1P3S5D7F9G1H3J5K7L9Z1X.', 'CUSTOMER', '9876543210')
-ON DUPLICATE KEY UPDATE user_id=user_id;
+(1, 'System Administrator', 'admin@tourism.com', '$2a$12$ARX4KAJUFDAdCgPpcyxPteC/GJTJs2H7aCNoJng97qeOCss9bRy4S', 'ADMIN', '9998887770'),
+(2, 'John Doe', 'john@gmail.com', '$2a$12$dn4XRmy10YyICz8eyG.i9.R2WbhDj7tNNRks49tQEdzXHXbyV5r7u', 'CUSTOMER', '9876543210')
+ON DUPLICATE KEY UPDATE password_hash=VALUES(password_hash);
 
 -- 2. Destinations
 INSERT INTO destinations (destination_id, name, country, description, category, estimated_daily_cost, image_url) VALUES

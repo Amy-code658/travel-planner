@@ -185,31 +185,42 @@ public class LoginFrame extends JFrame {
         loginButton.setEnabled(false);
         loginButton.setText("Signing in...");
 
-        AuthService.AuthResult result = authService.login(email, password);
+        try {
+            AuthService.AuthResult result = authService.login(email, password);
 
-        if (result.isSuccess()) {
-            User user = result.getUser();
-            JOptionPane.showMessageDialog(this,
-                    "Welcome back, " + user.getFullName() + "!\nLogged in as: " + user.getRole(),
-                    "Sign In Successful",
-                    JOptionPane.INFORMATION_MESSAGE);
+            if (result.isSuccess()) {
+                User user = result.getUser();
+                JOptionPane.showMessageDialog(this,
+                        "Welcome back, " + user.getFullName() + "!\nLogged in as: " + user.getRole(),
+                        "Sign In Successful",
+                        JOptionPane.INFORMATION_MESSAGE);
 
-            // Role-based routing
-            if (user.isAdmin()) {
-                openAdminDashboard(user);
+                // Role-based routing
+                if (user.isAdmin()) {
+                    openAdminDashboard(user);
+                } else {
+                    openCustomerHome(user);
+                }
+                dispose();
             } else {
-                openCustomerHome(user);
+                loginButton.setEnabled(true);
+                loginButton.setText("Sign In");
+                JOptionPane.showMessageDialog(this,
+                        result.getMessage(),
+                        "Sign In Failed",
+                        JOptionPane.ERROR_MESSAGE);
+                passwordField.setText("");
+                passwordField.requestFocus();
             }
-            dispose();
-        } else {
+        } catch (Throwable t) {
             loginButton.setEnabled(true);
             loginButton.setText("Sign In");
             JOptionPane.showMessageDialog(this,
-                    result.getMessage(),
-                    "Sign In Failed",
+                    "An unexpected error occurred during sign in:\n" + t.getMessage()
+                    + "\n\nPlease check your MySQL database connection (port 3306).",
+                    "Sign In Error",
                     JOptionPane.ERROR_MESSAGE);
-            passwordField.setText("");
-            passwordField.requestFocus();
+            t.printStackTrace();
         }
     }
 

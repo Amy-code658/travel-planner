@@ -111,7 +111,8 @@ public class PDFExportService {
     }
 
     private String money(Number amount) {
-        return CURRENCY + String.format("%.2f", amount.doubleValue());
+        if (amount == null) return "-";
+        return com.tourism.config.CurrencyManager.getInstance().format(amount.doubleValue());
     }
 
     private void addHeaderCell(PdfPTable table, String text) {
