@@ -148,14 +148,26 @@ public class PackageCard extends JPanel {
         topRow.add(matchScoreLabel, BorderLayout.EAST);
 
         // Destination title on bottom-left of banner
-        JPanel bottomRow = new JPanel(new BorderLayout());
+        JPanel bottomRow = new JPanel(new BorderLayout(6, 0));
         bottomRow.setOpaque(false);
 
         String destLocation = (dest != null) ? dest.getName() + ", " + dest.getCountry() : "Worldwide";
         JLabel locationLabel = new JLabel("📍 " + destLocation);
         locationLabel.setFont(ThemeConstants.FONT_BOLD);
         locationLabel.setForeground(Color.WHITE);
-        bottomRow.add(locationLabel, BorderLayout.SOUTH);
+        bottomRow.add(locationLabel, BorderLayout.WEST);
+
+        // Live Weather & Climate Badge
+        String weatherText = getWeatherBadge(dest, travelPackage);
+        String weatherTip = getWeatherTip(dest, travelPackage);
+        JLabel weatherBadge = new JLabel(weatherText);
+        weatherBadge.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        weatherBadge.setForeground(Color.WHITE);
+        weatherBadge.setBackground(new Color(0, 0, 0, 130));
+        weatherBadge.setOpaque(true);
+        weatherBadge.setBorder(new EmptyBorder(2, 6, 2, 6));
+        weatherBadge.setToolTipText("<html><b>Seasonal Climate:</b> " + weatherTip + "</html>");
+        bottomRow.add(weatherBadge, BorderLayout.EAST);
 
         banner.add(topRow, BorderLayout.NORTH);
         banner.add(bottomRow, BorderLayout.SOUTH);
@@ -455,5 +467,43 @@ public class PackageCard extends JPanel {
 
     public void setOnBookNowListener(Consumer<Package> listener) {
         this.onBookNowListener = listener;
+    }
+
+    private String getWeatherBadge(Destination dest, Package pkg) {
+        String name = (dest != null && dest.getName() != null) ? dest.getName().toLowerCase() : "";
+        if (name.contains("bali")) return "☀️ 29°C";
+        if (name.contains("alps") || name.contains("swiss")) return "❄️ -2°C";
+        if (name.contains("kyoto") || name.contains("japan")) return "🌸 18°C";
+        if (name.contains("goa")) return "🌴 31°C";
+        if (name.contains("paris") || name.contains("france")) return "⛅ 16°C";
+        if (name.contains("manali") || name.contains("kullu")) return "🏔️ 8°C";
+        if (name.contains("shimla")) return "🌲 14°C";
+        if (name.contains("kerala")) return "🌧️ 26°C";
+        if (name.contains("vietnam")) return "🏮 28°C";
+        if (name.contains("maldives")) return "🏖️ 30°C";
+        if (name.contains("egypt") || name.contains("cairo")) return "🏜️ 33°C";
+
+        // Category/Season fallback
+        String category = (dest != null && dest.getCategory() != null) ? dest.getCategory().toLowerCase() : "";
+        if (category.contains("beach")) return "🌴 30°C";
+        if (category.contains("adventure")) return "🏔️ 15°C";
+        if (category.contains("culture")) return "🏛️ 21°C";
+        return "☀️ 24°C";
+    }
+
+    private String getWeatherTip(Destination dest, Package pkg) {
+        String name = (dest != null && dest.getName() != null) ? dest.getName().toLowerCase() : "";
+        if (name.contains("bali")) return "Tropical sunshine! Pack lightweight cottons, swimwear & sunscreen.";
+        if (name.contains("alps") || name.contains("swiss")) return "Sub-zero powder snow! Thermal layers, gloves & snow boots recommended.";
+        if (name.contains("kyoto") || name.contains("japan")) return "Mild spring climate with blooming cherry trees. Light cardigan recommended.";
+        if (name.contains("goa")) return "Warm coastal breeze! Ideal for beach walks, water sports & shades.";
+        if (name.contains("paris") || name.contains("france")) return "Pleasant European breeze. Trench coats, scarves & comfortable walking shoes recommended.";
+        if (name.contains("manali") || name.contains("kullu")) return "High-altitude crisp chill. Warm woolens, thermals & trekking shoes recommended.";
+        if (name.contains("shimla")) return "Refreshing pine mountain weather. Light jackets & evening shawls recommended.";
+        if (name.contains("kerala")) return "Lush coastal tropical climate with gentle backwater breeze. Light cottons & umbrella recommended.";
+        if (name.contains("vietnam")) return "Warm tropical climate with vibrant lantern nights. Breathable fabrics & rain gear recommended.";
+        if (name.contains("maldives")) return "Pristine sunny lagoon weather. Swimwear, snorkel kit & high SPF recommended.";
+        if (name.contains("egypt") || name.contains("cairo")) return "Dry desert warmth around historic pyramids. Sun hats, UV protection & hydration essential.";
+        return "Ideal travel conditions. Check local daily forecast before departure.";
     }
 }

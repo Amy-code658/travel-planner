@@ -1,5 +1,6 @@
 package com.tourism.ui.customer;
 
+import com.tourism.config.ThemeConstants;
 import com.tourism.dao.UserDAO;
 import com.tourism.model.Booking;
 import com.tourism.model.User;
@@ -87,9 +88,16 @@ public class BookingHistoryPanel extends JPanel {
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JButton refreshButton = new JButton("Refresh");
+        JButton boardingPassBtn = new JButton("✈️ Boarding Pass");
         JButton downloadInvoiceBtn = new JButton("📄 Download PDF Invoice");
         JButton cancelButton = new JButton("Cancel selected booking");
         JButton reviewButton = new JButton("Write Review");
+
+        boardingPassBtn.setBackground(new Color(232, 248, 245));
+        boardingPassBtn.setForeground(new Color(22, 160, 133));
+        boardingPassBtn.setFont(ThemeConstants.FONT_BOLD);
+        boardingPassBtn.setFocusPainted(false);
+        boardingPassBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         downloadInvoiceBtn.setBackground(new Color(235, 245, 251));
         downloadInvoiceBtn.setForeground(new Color(31, 97, 141));
@@ -97,12 +105,14 @@ public class BookingHistoryPanel extends JPanel {
         downloadInvoiceBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         refreshButton.addActionListener(e -> loadBookings());
+        boardingPassBtn.addActionListener(e -> onShowBoardingPass());
         downloadInvoiceBtn.addActionListener(e -> onDownloadInvoice());
         cancelButton.addActionListener(e -> onCancel());
         reviewButton.addActionListener(e -> onReview());
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         buttons.add(refreshButton);
+        buttons.add(boardingPassBtn);
         buttons.add(downloadInvoiceBtn);
         buttons.add(cancelButton);
         buttons.add(reviewButton);
@@ -223,6 +233,34 @@ public class BookingHistoryPanel extends JPanel {
         );
 
         dialog.setVisible(true);
+    }
+
+    private void onShowBoardingPass() {
+        int row = table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a booking from the table first.",
+                    "No Booking Selected",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        Booking selected = bookings.get(row);
+        if (Booking.CANCELLED.equals(selected.getStatus())) {
+            JOptionPane.showMessageDialog(this,
+                    "Boarding passes are not issued for cancelled bookings.",
+                    "Booking Cancelled",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        User customer = new UserDAO().findById(userId);
+        if (customer == null) {
+            customer = new User(userId, "Valued Traveler", "traveler@tourism.com", "", "CUSTOMER", "");
+        }
+
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        new BoardingPassDialog(owner, selected, customer).setVisible(true);
     }
 
     private void onDownloadInvoice() {
