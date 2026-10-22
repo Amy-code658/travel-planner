@@ -258,6 +258,78 @@ public class PackageDAO {
      *
      * @return List of season names.
      */
+    /** Retrieves packages including inactive ones for administrator inventory. */
+    public List<Package> findAllForAdmin() {
+        List<Package> list = new ArrayList<>();
+        String sql = BASE_SELECT_SQL + "ORDER BY p.package_id ASC";
+        Connection conn = DBConnection.getInstance().getConnection();
+        if (conn == null) return list;
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) list.add(mapResultSetToPackage(rs));
+        } catch (SQLException e) {
+            System.err.println("Could not retrieve packages for admin: " + e.getMessage());
+        }
+        return list;
+    }
+
+    /** Inserts a package and stores its generated ID on the model. */
+    public boolean insert(Package pkg) {
+        String sql = "INSERT INTO travel_packages (destination_id, title, description, duration_days, base_price, season, discount_percentage, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        Connection conn = DBConnection.getInstance().getConnection();
+        if (conn == null || pkg == null) return false;
+        try (PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            bindPackage(stmt, pkg, false);
+            if (stmt.executeUpdate() != 1) return false;
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                if (keys.next()) pkg.setPackageId(keys.getInt(1));
+            }
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Could not insert package: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /** Updates an existing package. */
+    public boolean update(Package pkg) {
+        String sql = "UPDATE travel_packages SET destination_id = ?, title = ?, description = ?, duration_days = ?, base_price = ?, season = ?, discount_percentage = ?, is_active = ? WHERE package_id = ?";
+        Connection conn = DBConnection.getInstance().getConnection();
+        if (conn == null || pkg == null || pkg.getPackageId() <= 0) return false;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            bindPackage(stmt, pkg, true);
+            return stmt.executeUpdate() == 1;
+        } catch (SQLException e) {
+            System.err.println("Could not update package: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /** Soft-deletes a package by deactivating it, preserving existing booking history. */
+    public boolean delete(int packageId) {
+        String sql = "UPDATE travel_packages SET is_active = FALSE WHERE package_id = ? AND is_active = TRUE";
+        Connection conn = DBConnection.getInstance().getConnection();
+        if (conn == null || packageId <= 0) return false;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, packageId);
+            return stmt.executeUpdate() == 1;
+        } catch (SQLException e) {
+            System.err.println("Could not deactivate package: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private void bindPackage(PreparedStatement stmt, Package pkg, boolean includeId) throws SQLException {
+        stmt.setInt(1, pkg.getDestinationId());
+        stmt.setString(2, pkg.getTitle().trim());
+        stmt.setString(3, pkg.getDescription());
+        stmt.setInt(4, pkg.getDurationDays());
+        stmt.setDouble(5, pkg.getBasePrice());
+        stmt.setString(6, pkg.getSeason());
+        stmt.setDouble(7, pkg.getDiscountPercentage());
+        stmt.setBoolean(8, pkg.isActive());
+        if (includeId) stmt.setInt(9, pkg.getPackageId());
+    }
+
     public List<String> findAllSeasons() {
         List<String> seasons = new ArrayList<>();
         String sql = "SELECT DISTINCT season FROM travel_packages WHERE is_active = TRUE AND season IS NOT NULL ORDER BY season ASC";
