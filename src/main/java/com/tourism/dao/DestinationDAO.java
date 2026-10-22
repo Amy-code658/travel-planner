@@ -188,6 +188,70 @@ public class DestinationDAO {
         return categories;
     }
 
+    /** Inserts a destination and assigns its generated database ID. */
+    public boolean insert(Destination destination) {
+        String sql = "INSERT INTO destinations (name, country, description, category, estimated_daily_cost, image_url) VALUES (?, ?, ?, ?, ?, ?)";
+        Connection conn = DBConnection.getInstance().getConnection();
+        if (conn == null || destination == null) return false;
+        try (PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, destination.getName().trim());
+            stmt.setString(2, destination.getCountry().trim());
+            stmt.setString(3, destination.getDescription());
+            stmt.setString(4, destination.getCategory());
+            stmt.setDouble(5, destination.getEstimatedDailyCost());
+            stmt.setString(6, destination.getImageUrl());
+            if (stmt.executeUpdate() != 1) return false;
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                if (keys.next()) destination.setDestinationId(keys.getInt(1));
+            }
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Could not insert destination: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /** Updates an existing destination. */
+    public boolean update(Destination destination) {
+        String sql = "UPDATE destinations SET name = ?, country = ?, description = ?, category = ?, estimated_daily_cost = ?, image_url = ? WHERE destination_id = ?";
+        Connection conn = DBConnection.getInstance().getConnection();
+        if (conn == null || destination == null || destination.getDestinationId() <= 0) return false;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, destination.getName().trim());
+            stmt.setString(2, destination.getCountry().trim());
+            stmt.setString(3, destination.getDescription());
+            stmt.setString(4, destination.getCategory());
+            stmt.setDouble(5, destination.getEstimatedDailyCost());
+            stmt.setString(6, destination.getImageUrl());
+            stmt.setInt(7, destination.getDestinationId());
+            return stmt.executeUpdate() == 1;
+        } catch (SQLException e) {
+            System.err.println("Could not update destination: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /** Deletes a destination only when no travel packages reference it. */
+    public boolean delete(int destinationId) {
+        Connection conn = DBConnection.getInstance().getConnection();
+        if (conn == null || destinationId <= 0) return false;
+        String referenceSql = "SELECT COUNT(*) FROM travel_packages WHERE destination_id = ?";
+        String deleteSql = "DELETE FROM destinations WHERE destination_id = ?";
+        try (PreparedStatement check = conn.prepareStatement(referenceSql)) {
+            check.setInt(1, destinationId);
+            try (ResultSet rs = check.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) return false;
+            }
+            try (PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
+                stmt.setInt(1, destinationId);
+                return stmt.executeUpdate() == 1;
+            }
+        } catch (SQLException e) {
+            System.err.println("Could not delete destination: " + e.getMessage());
+            return false;
+        }
+    }
+
     /**
      * Helper method to map a single ResultSet row to a Destination model.
      *

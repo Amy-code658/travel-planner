@@ -144,6 +144,23 @@ public class BookingDAO {
         }
     }
 
+    /** Returns all bookings for the administrator, optionally filtered by status. */
+    public List<Booking> findAllForAdmin(String status) throws SQLException {
+        String normalized = status == null ? "ALL" : status.trim().toUpperCase();
+        String sql = SELECT_BOOKING + ("ALL".equals(normalized) ? "" : "WHERE b.booking_status = ? ")
+                + "ORDER BY b.booking_date DESC";
+        Connection conn = DBConnection.getInstance().getConnection();
+        if (conn == null) throw new SQLException("Database connection is unavailable.");
+        List<Booking> bookings = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (!"ALL".equals(normalized)) ps.setString(1, normalized);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) bookings.add(mapRow(rs));
+            }
+        }
+        return bookings;
+    }
+
     // Converts the current row of the ResultSet into a Booking object
     private Booking mapRow(ResultSet rs) throws SQLException {
         Booking b = new Booking();
