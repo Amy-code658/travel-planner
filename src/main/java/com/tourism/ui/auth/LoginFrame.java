@@ -214,55 +214,11 @@ public class LoginFrame extends JFrame {
     }
 
     private void openAdminDashboard(User admin) {
-        // Placeholder until Dev 6 builds AdminMainFrame
-        JFrame adminFrame = new JFrame("Admin Console - " + admin.getFullName());
-        adminFrame.setSize(800, 600);
-        adminFrame.setLocationRelativeTo(null);
-        adminFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new EmptyBorder(30, 30, 30, 30));
-        JLabel label = new JLabel("<html><center><h2>Administrator Portal</h2>"
-                + "<p>Logged in as: <b>" + admin.getEmail() + "</b></p>"
-                + "<p><i>(Dev 6 is building the Admin Inventory & Oversight Panel here)</i></p></center></html>", SwingConstants.CENTER);
-        panel.add(label, BorderLayout.CENTER);
-
-        JButton logoutBtn = new JButton("Logout");
-        logoutBtn.addActionListener(e -> {
-            authService.logout();
-            new LoginFrame().setVisible(true);
-            adminFrame.dispose();
-        });
-        panel.add(logoutBtn, BorderLayout.SOUTH);
-
-        adminFrame.add(panel);
-        adminFrame.setVisible(true);
+        new com.tourism.ui.admin.AdminMainFrame(admin).setVisible(true);
     }
 
     private void openCustomerHome(User customer) {
-        // Placeholder until Dev 3 builds CustomerMainFrame
-        JFrame customerFrame = new JFrame("Personalized Tourism - " + customer.getFullName());
-        customerFrame.setSize(900, 650);
-        customerFrame.setLocationRelativeTo(null);
-        customerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new EmptyBorder(30, 30, 30, 30));
-        JLabel label = new JLabel("<html><center><h2>Welcome, " + customer.getFullName() + "!</h2>"
-                + "<p>Email: <b>" + customer.getEmail() + "</b> | Role: <b>Customer</b></p>"
-                + "<p><i>(Dev 3 & Dev 4 are building the Catalog & Recommendations Panels here)</i></p></center></html>", SwingConstants.CENTER);
-        panel.add(label, BorderLayout.CENTER);
-
-        JButton logoutBtn = new JButton("Logout");
-        logoutBtn.addActionListener(e -> {
-            authService.logout();
-            new LoginFrame().setVisible(true);
-            customerFrame.dispose();
-        });
-        panel.add(logoutBtn, BorderLayout.SOUTH);
-
-        customerFrame.add(panel);
-        customerFrame.setVisible(true);
+        new com.tourism.ui.customer.CustomerMainFrame(customer).setVisible(true);
     }
 
     public static void main(String[] args) {
