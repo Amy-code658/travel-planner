@@ -5,12 +5,14 @@ import com.tourism.model.Destination;
 import com.tourism.model.ItineraryDay;
 import com.tourism.model.Package;
 import com.tourism.service.ItineraryService.ItemizedCost;
+import com.tourism.service.PDFExportService;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.File;
 import java.util.List;
 
 /**
@@ -130,6 +132,14 @@ public class ItineraryDialog extends JDialog {
             footerPanel.add(costGrid, BorderLayout.CENTER);
         }
 
+        JButton downloadPdfBtn = new JButton("📄 Download PDF Itinerary");
+        downloadPdfBtn.setFont(ThemeConstants.FONT_BOLD);
+        downloadPdfBtn.setBackground(new Color(235, 245, 251));
+        downloadPdfBtn.setForeground(ThemeConstants.PRIMARY_DARK);
+        downloadPdfBtn.setFocusPainted(false);
+        downloadPdfBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        downloadPdfBtn.addActionListener(e -> exportItineraryPDF(pkg, itineraryDays));
+
         JButton closeButton = new JButton("Close");
         closeButton.setFont(ThemeConstants.FONT_BOLD);
         closeButton.setBackground(ThemeConstants.PRIMARY_COLOR);
@@ -138,12 +148,49 @@ public class ItineraryDialog extends JDialog {
         closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         closeButton.addActionListener(e -> dispose());
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setOpaque(false);
+        buttonPanel.add(downloadPdfBtn);
         buttonPanel.add(closeButton);
         footerPanel.add(buttonPanel, BorderLayout.EAST);
 
         add(footerPanel, BorderLayout.SOUTH);
+    }
+
+    private void exportItineraryPDF(Package pkg, List<ItineraryDay> days) {
+        if (pkg == null) {
+            JOptionPane.showMessageDialog(this, "No package selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save Itinerary PDF");
+        String sanitizedTitle = pkg.getTitle().replaceAll("[^a-zA-Z0-9_-]", "_");
+        fileChooser.setSelectedFile(new File(sanitizedTitle + "_Itinerary.pdf"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File targetFile = fileChooser.getSelectedFile();
+            if (!targetFile.getName().toLowerCase().endsWith(".pdf")) {
+                targetFile = new File(targetFile.getParentFile(), targetFile.getName() + ".pdf");
+            }
+            try {
+                PDFExportService pdfService = new PDFExportService();
+                pdfService.exportItineraryPDF(pkg, days, targetFile);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Itinerary exported successfully!\nSaved to: " + targetFile.getAbsolutePath(),
+                        "PDF Export Successful",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Failed to export itinerary PDF:\n" + ex.getMessage(),
+                        "Export Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
     }
 
     private JPanel createDayCard(ItineraryDay day, String imageUrl) {

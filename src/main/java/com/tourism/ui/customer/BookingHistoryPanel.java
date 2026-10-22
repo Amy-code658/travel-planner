@@ -1,12 +1,16 @@
 package com.tourism.ui.customer;
 
+import com.tourism.dao.UserDAO;
 import com.tourism.model.Booking;
+import com.tourism.model.User;
 import com.tourism.service.BookingException;
 import com.tourism.service.BookingService;
+import com.tourism.service.PDFExportService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,14 +87,23 @@ public class BookingHistoryPanel extends JPanel {
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JButton refreshButton = new JButton("Refresh");
+        JButton downloadInvoiceBtn = new JButton("📄 Download PDF Invoice");
         JButton cancelButton = new JButton("Cancel selected booking");
         JButton reviewButton = new JButton("Write Review");
+
+        downloadInvoiceBtn.setBackground(new Color(235, 245, 251));
+        downloadInvoiceBtn.setForeground(new Color(31, 97, 141));
+        downloadInvoiceBtn.setFocusPainted(false);
+        downloadInvoiceBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         refreshButton.addActionListener(e -> loadBookings());
+        downloadInvoiceBtn.addActionListener(e -> onDownloadInvoice());
         cancelButton.addActionListener(e -> onCancel());
         reviewButton.addActionListener(e -> onReview());
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         buttons.add(refreshButton);
+        buttons.add(downloadInvoiceBtn);
         buttons.add(cancelButton);
         buttons.add(reviewButton);
         add(buttons, BorderLayout.SOUTH);
@@ -208,5 +221,54 @@ public class BookingHistoryPanel extends JPanel {
         );
 
         dialog.setVisible(true);
+    }
+
+    private void onDownloadInvoice() {
+        int row = table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please select a booking from the table first.",
+                    "No Booking Selected",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            return;
+        }
+
+        Booking selected = bookings.get(row);
+        UserDAO userDAO = new UserDAO();
+        User customer = userDAO.findById(userId);
+        if (customer == null) {
+            customer = new User(userId, "Valued Customer", "customer@tourism.com", "", "CUSTOMER", "");
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save Booking Invoice PDF");
+        fileChooser.setSelectedFile(new File("Invoice_BKG" + selected.getBookingId() + ".pdf"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File targetFile = fileChooser.getSelectedFile();
+            if (!targetFile.getName().toLowerCase().endsWith(".pdf")) {
+                targetFile = new File(targetFile.getParentFile(), targetFile.getName() + ".pdf");
+            }
+            try {
+                PDFExportService pdfService = new PDFExportService();
+                pdfService.exportInvoicePDF(selected, customer, targetFile);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Invoice PDF exported successfully!\nSaved to: " + targetFile.getAbsolutePath(),
+                        "PDF Export Successful",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Failed to export invoice PDF:\n" + ex.getMessage(),
+                        "Export Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
     }
 }
