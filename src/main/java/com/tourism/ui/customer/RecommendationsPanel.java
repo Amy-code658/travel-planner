@@ -63,7 +63,7 @@ public class RecommendationsPanel extends JPanel {
 
         JLabel subLabel = new JLabel("Our rule-based engine scores and ranks trips based on your personal travel preferences.");
         subLabel.setFont(ThemeConstants.FONT_BODY);
-        subLabel.setForeground(new Color(235, 245, 255));
+        subLabel.setForeground(new Color(254, 242, 237));
 
         headerPanel.add(titleLabel, BorderLayout.NORTH);
         headerPanel.add(subLabel, BorderLayout.SOUTH);

@@ -10,16 +10,16 @@ public final class ThemeConstants {
 
     private ThemeConstants() {} // Prevent instantiation
 
-    // Primary Colors
-    public static final Color PRIMARY_COLOR = new Color(41, 128, 185);     // Ocean Blue
-    public static final Color PRIMARY_DARK  = new Color(31, 97, 141);      // Deep Blue
+    // Primary Brand Colors - Warm Sunset Coral & Deep Terracotta (Replaced cold blue)
+    public static final Color PRIMARY_COLOR = new Color(224, 86, 56);     // Warm Sunset Coral (#E05638)
+    public static final Color PRIMARY_DARK  = new Color(178, 54, 28);      // Deep Terracotta (#B2361C)
     public static final Color ACCENT_COLOR  = new Color(39, 174, 96);      // Emerald Green (Success)
     public static final Color DANGER_COLOR  = new Color(192, 57, 43);      // Crimson Red (Cancel / Error)
     public static final Color WARNING_COLOR = new Color(243, 156, 18);     // Amber / Gold (Rating / Alerts)
-    public static final Color BACKGROUND    = new Color(248, 249, 250);    // Light Off-White
+    public static final Color BACKGROUND    = new Color(250, 250, 251);    // Warm Soft Off-White
     public static final Color CARD_BG       = Color.WHITE;                 // Card background
-    public static final Color TEXT_PRIMARY  = new Color(44, 62, 80);       // Dark Slate
-    public static final Color TEXT_MUTED    = new Color(127, 140, 141);    // Cool Gray
+    public static final Color TEXT_PRIMARY  = new Color(39, 43, 51);       // Deep Charcoal Slate
+    public static final Color TEXT_MUTED    = new Color(115, 125, 138);    // Modern Slate Gray
 
     // Fonts
     public static final Font FONT_HEADER_LARGE = new Font("Segoe UI", Font.BOLD, 22);

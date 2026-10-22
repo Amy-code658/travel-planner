@@ -119,7 +119,7 @@ public class LoginFrame extends JFrame {
 
             JLabel titleLabel = new JLabel("WANDERLUST", SwingConstants.CENTER);
             titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
-            titleLabel.setForeground(new Color(24, 43, 73));
+            titleLabel.setForeground(new Color(42, 24, 34));
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             brandPanel.add(titleLabel);
 
@@ -284,16 +284,18 @@ public class LoginFrame extends JFrame {
 
             if (bgImg != null) {
                 g2.drawImage(bgImg, 0, 0, w, h, this);
+                // Warm sunset/golden hour gradient overlay (deep twilight to sunset coral)
                 GradientPaint overlay = new GradientPaint(
-                        0, 0, new Color(15, 32, 67, 195),
-                        w, h, new Color(230, 81, 0, 160)
+                        0, 0, new Color(42, 24, 34, 215),
+                        w, h, new Color(224, 86, 56, 175)
                 );
                 g2.setPaint(overlay);
                 g2.fillRect(0, 0, w, h);
             } else {
+                // Warm sunset fallback gradient
                 GradientPaint fallbackGrad = new GradientPaint(
-                        0, 0, new Color(26, 42, 108),
-                        w, h, new Color(253, 187, 45)
+                        0, 0, new Color(48, 24, 38),
+                        w, h, new Color(224, 86, 56)
                 );
                 g2.setPaint(fallbackGrad);
                 g2.fillRect(0, 0, w, h);
@@ -312,8 +314,8 @@ public class LoginFrame extends JFrame {
         private JButton createDemoPill(String text, Runnable onClick) {
             JButton btn = new JButton(text);
             btn.setFont(new Font("Segoe UI", Font.BOLD, 11));
-            btn.setForeground(new Color(41, 128, 185));
-            btn.setBackground(new Color(235, 245, 251));
+            btn.setForeground(ThemeConstants.PRIMARY_DARK);
+            btn.setBackground(new Color(254, 243, 237));
             btn.setFocusPainted(false);
             btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
             btn.putClientProperty("JComponent.roundRect", true);

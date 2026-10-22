@@ -37,14 +37,11 @@ public class PackageCard extends JPanel {
     private void initCardUI() {
         setLayout(new BorderLayout());
         setBackground(ThemeConstants.CARD_BG);
-        setPreferredSize(new Dimension(300, 400));
-        setMinimumSize(new Dimension(280, 380));
+        setPreferredSize(new Dimension(295, 315));
+        setMinimumSize(new Dimension(270, 290));
 
-        // Modern card border with subtle outline and padding
-        setBorder(new CompoundBorder(
-                new LineBorder(new Color(225, 230, 238), 1, true),
-                new EmptyBorder(0, 0, ThemeConstants.PADDING_MEDIUM, 0)
-        ));
+        // Modern card border with subtle outline, no wasteful bottom insets
+        setBorder(new LineBorder(new Color(228, 231, 236), 1, true));
 
         // 1. Header Banner / Image section (NORTH)
         JPanel headerBanner = createHeaderBanner();
@@ -106,7 +103,7 @@ public class PackageCard extends JPanel {
 
                     if ("Beach".equalsIgnoreCase(category)) {
                         topColor = new Color(22, 160, 133);
-                        bottomColor = new Color(41, 128, 185);
+                        bottomColor = new Color(230, 126, 34);
                     } else if ("Adventure".equalsIgnoreCase(category)) {
                         topColor = new Color(211, 84, 0);
                         bottomColor = new Color(230, 126, 34);
@@ -129,8 +126,8 @@ public class PackageCard extends JPanel {
             }
         };
 
-        banner.setPreferredSize(new Dimension(300, 130));
-        banner.setBorder(new EmptyBorder(10, 12, 10, 12));
+        banner.setPreferredSize(new Dimension(295, 132));
+        banner.setBorder(new EmptyBorder(8, 10, 8, 10));
 
         // Top Row: Category pill (WEST) + Match Score Badge (EAST)
         JPanel topRow = new JPanel(new BorderLayout());
@@ -182,34 +179,33 @@ public class PackageCard extends JPanel {
         JPanel body = new JPanel();
         body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
         body.setOpaque(false);
-        body.setBorder(new EmptyBorder(10, 14, 6, 14));
+        body.setBorder(new EmptyBorder(8, 12, 2, 12));
 
         String title = (travelPackage != null && travelPackage.getTitle() != null) ? travelPackage.getTitle() : "Travel Package";
-        JLabel titleLabel = new JLabel("<html><b>" + title + "</b></html>");
-        titleLabel.setFont(ThemeConstants.FONT_SUBHEADER);
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         titleLabel.setForeground(ThemeConstants.PRIMARY_DARK);
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         body.add(titleLabel);
 
-        body.add(Box.createRigidArea(new Dimension(0, 6)));
+        body.add(Box.createRigidArea(new Dimension(0, 4)));
 
-        // Tags Row: Duration & Season
-        JPanel tagsRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        // Tags Row: Duration, Rating, Season
+        JPanel tagsRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
         tagsRow.setOpaque(false);
         tagsRow.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         int duration = (travelPackage != null) ? travelPackage.getDurationDays() : 0;
-        JLabel durationTag = createTag("⏱ " + duration + " Days", new Color(240, 243, 246), ThemeConstants.TEXT_PRIMARY);
+        JLabel durationTag = createTag("⏱ " + duration + " Days", new Color(243, 244, 246), ThemeConstants.TEXT_PRIMARY);
         tagsRow.add(durationTag);
 
+        JLabel ratingTag = createTag("★ 4.8", new Color(254, 249, 231), new Color(183, 119, 0));
+        tagsRow.add(ratingTag);
+
         if (travelPackage != null && travelPackage.getSeason() != null && !travelPackage.getSeason().trim().isEmpty()) {
-            JLabel seasonTag = createTag("☀️ " + travelPackage.getSeason(), new Color(254, 249, 231), new Color(183, 119, 0));
+            JLabel seasonTag = createTag("☀️ " + travelPackage.getSeason(), new Color(254, 243, 237), ThemeConstants.PRIMARY_DARK);
             tagsRow.add(seasonTag);
         }
-
-        // Gold star rating badge
-        JLabel ratingTag = createTag("★ 4.8", new Color(254, 249, 231), new Color(214, 137, 16));
-        tagsRow.add(ratingTag);
 
         body.add(tagsRow);
 
@@ -219,18 +215,16 @@ public class PackageCard extends JPanel {
         matchReasonLabel.setForeground(ThemeConstants.PRIMARY_DARK);
         matchReasonLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         matchReasonLabel.setVisible(false);
-
-        body.add(Box.createRigidArea(new Dimension(0, 6)));
         body.add(matchReasonLabel);
 
-        body.add(Box.createRigidArea(new Dimension(0, 6)));
+        body.add(Box.createRigidArea(new Dimension(0, 4)));
 
-        // Description
+        // Description: Compact 2-line snippet utilizing full card width
         String desc = (travelPackage != null) ? travelPackage.getDescription() : null;
         if (desc == null || desc.trim().isEmpty()) {
             desc = "Experience an unforgettable journey filled with guided tours, scenic wonders, and authentic local cuisine.";
         }
-        JLabel descLabel = new JLabel("<html><body style='width: 240px; color: #7f8c8d; font-size: 11px;'>" + desc + "</body></html>");
+        JLabel descLabel = new JLabel("<html><body style='width: 265px; color: #64748b; font-size: 11px; line-height: 1.25;'>" + desc + "</body></html>");
         descLabel.setFont(ThemeConstants.FONT_SMALL);
         descLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         body.add(descLabel);
@@ -242,9 +236,9 @@ public class PackageCard extends JPanel {
      * Creates the footer panel displaying pricing, discount badge, and action buttons.
      */
     private JPanel createFooterPanel() {
-        JPanel footer = new JPanel(new BorderLayout(8, 8));
+        JPanel footer = new JPanel(new BorderLayout(6, 0));
         footer.setOpaque(false);
-        footer.setBorder(new EmptyBorder(6, 14, 0, 14));
+        footer.setBorder(new EmptyBorder(4, 12, 10, 12));
 
         // Price Section (WEST)
         JPanel pricePanel = new JPanel();
@@ -263,23 +257,23 @@ public class PackageCard extends JPanel {
                 strikeRow.setOpaque(false);
 
                 strikePrice = new JLabel("<html><strike>" + cm.format(basePrice) + "</strike></html>");
-                strikePrice.setFont(ThemeConstants.FONT_SMALL);
+                strikePrice.setFont(new Font("Segoe UI", Font.PLAIN, 10));
                 strikePrice.setForeground(ThemeConstants.TEXT_MUTED);
                 strikeRow.add(strikePrice);
 
                 JLabel discountBadge = new JLabel("-" + (int) discount + "%");
-                discountBadge.setFont(new Font("Segoe UI", Font.BOLD, 10));
+                discountBadge.setFont(new Font("Segoe UI", Font.BOLD, 9));
                 discountBadge.setForeground(Color.WHITE);
                 discountBadge.setBackground(ThemeConstants.DANGER_COLOR);
                 discountBadge.setOpaque(true);
-                discountBadge.setBorder(new EmptyBorder(1, 4, 1, 4));
+                discountBadge.setBorder(new EmptyBorder(1, 3, 1, 3));
                 strikeRow.add(discountBadge);
 
                 pricePanel.add(strikeRow);
             }
 
             finalPriceLabel = new JLabel(cm.format(finalPrice));
-            finalPriceLabel.setFont(ThemeConstants.FONT_HEADER);
+            finalPriceLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
             finalPriceLabel.setForeground(ThemeConstants.PRIMARY_DARK);
             pricePanel.add(finalPriceLabel);
         }
@@ -287,13 +281,14 @@ public class PackageCard extends JPanel {
         footer.add(pricePanel, BorderLayout.WEST);
 
         // Buttons Section (EAST)
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         buttonsPanel.setOpaque(false);
 
-        JButton detailsBtn = new JButton("View Itinerary");
+        JButton detailsBtn = new JButton("Details");
         detailsBtn.setFont(ThemeConstants.FONT_SMALL);
         detailsBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         detailsBtn.setFocusPainted(false);
+        detailsBtn.setPreferredSize(new Dimension(72, 28));
         detailsBtn.addActionListener(e -> {
             if (onViewDetailsListener != null) {
                 onViewDetailsListener.accept(travelPackage);
@@ -304,11 +299,12 @@ public class PackageCard extends JPanel {
         buttonsPanel.add(detailsBtn);
 
         JButton bookBtn = new JButton("Book Now");
-        bookBtn.setFont(ThemeConstants.FONT_SMALL);
+        bookBtn.setFont(ThemeConstants.FONT_BOLD);
         bookBtn.setBackground(ThemeConstants.PRIMARY_COLOR);
         bookBtn.setForeground(Color.WHITE);
         bookBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         bookBtn.setFocusPainted(false);
+        bookBtn.setPreferredSize(new Dimension(88, 28));
         bookBtn.addActionListener(e -> {
             if (onBookNowListener != null) {
                 onBookNowListener.accept(travelPackage);
@@ -316,7 +312,7 @@ public class PackageCard extends JPanel {
                 JOptionPane.showMessageDialog(
                         this,
                         "Ready to book: \"" + (travelPackage != null ? travelPackage.getTitle() : "") + "\"\n" +
-                        "Total: $" + String.format("%.2f", travelPackage != null ? travelPackage.getFinalPrice() : 0.0) + "\n\n" +
+                        "Total: " + (travelPackage != null ? com.tourism.config.CurrencyManager.getInstance().format(travelPackage.getFinalPrice()) : "") + "\n\n" +
                         "(Booking integration hook: onBookNowListener)",
                         "Book Package",
                         JOptionPane.INFORMATION_MESSAGE
@@ -326,7 +322,6 @@ public class PackageCard extends JPanel {
         buttonsPanel.add(bookBtn);
 
         footer.add(buttonsPanel, BorderLayout.EAST);
-
         return footer;
     }
 

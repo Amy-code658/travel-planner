@@ -79,9 +79,9 @@ public class BookingHistoryPanel extends JPanel {
                 pill.setForeground(new Color(231, 76, 60));
                 pill.setBorder(BorderFactory.createLineBorder(new Color(231, 76, 60, 100), 1, true));
             } else {
-                pill.setBackground(new Color(235, 245, 251));
-                pill.setForeground(new Color(41, 128, 185));
-                pill.setBorder(BorderFactory.createLineBorder(new Color(41, 128, 185, 100), 1, true));
+                pill.setBackground(new Color(243, 244, 246));
+                pill.setForeground(new Color(75, 85, 99));
+                pill.setBorder(BorderFactory.createLineBorder(new Color(209, 213, 219), 1, true));
             }
             return pill;
         });
@@ -99,8 +99,8 @@ public class BookingHistoryPanel extends JPanel {
         boardingPassBtn.setFocusPainted(false);
         boardingPassBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        downloadInvoiceBtn.setBackground(new Color(235, 245, 251));
-        downloadInvoiceBtn.setForeground(new Color(31, 97, 141));
+        downloadInvoiceBtn.setBackground(new Color(254, 243, 237));
+        downloadInvoiceBtn.setForeground(ThemeConstants.PRIMARY_DARK);
         downloadInvoiceBtn.setFocusPainted(false);
         downloadInvoiceBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 

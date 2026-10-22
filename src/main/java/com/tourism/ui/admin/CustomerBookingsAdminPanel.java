@@ -73,7 +73,7 @@ public class CustomerBookingsAdminPanel extends JPanel {
         paidCountVal = new JLabel("0");
         pendingCountVal = new JLabel("0");
 
-        kpiGrid.add(createKPICard("👥", "Total Customers", totalCustomersVal, "Registered in system", new Color(41, 128, 185)));
+        kpiGrid.add(createKPICard("👥", "Total Customers", totalCustomersVal, "Registered in system", ThemeConstants.PRIMARY_COLOR));
         kpiGrid.add(createKPICard("✈️", "Trips Selected", totalBookingsVal, "Packages with bookings", new Color(39, 174, 96)));
         kpiGrid.add(createKPICard("✅", "Settled / Paid", paidCountVal, "Payment confirmed", new Color(22, 160, 133)));
         kpiGrid.add(createKPICard("⏳", "Pending / Action", pendingCountVal, "Awaiting fulfillment", new Color(230, 126, 34)));
@@ -452,8 +452,8 @@ public class CustomerBookingsAdminPanel extends JPanel {
                 case "PARTIALLY PAID":
                 case "PARTIAL":
                     pill.setText("● PARTIAL");
-                    pill.setBackground(new Color(235, 245, 251)); // Soft blue
-                    pill.setForeground(new Color(27, 79, 114));
+                    pill.setBackground(new Color(243, 232, 255)); // Soft lavender
+                    pill.setForeground(new Color(107, 33, 168));
                     break;
                 case "REFUNDED":
                     pill.setText("● REFUNDED");

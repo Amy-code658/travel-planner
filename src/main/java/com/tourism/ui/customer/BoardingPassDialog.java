@@ -145,8 +145,8 @@ public class BoardingPassDialog extends JDialog {
 
             // 1. Top Header Banner across whole pass
             GradientPaint headerGrad = new GradientPaint(
-                    0, 0, new Color(27, 42, 74),
-                    w, 0, new Color(41, 128, 185)
+                    0, 0, new Color(38, 43, 51),
+                    w, 0, new Color(224, 86, 56)
             );
             g2.setPaint(headerGrad);
             // Header with top-rounded corners
@@ -205,7 +205,7 @@ public class BoardingPassDialog extends JDialog {
             g2.setColor(ThemeConstants.PRIMARY_COLOR);
             g2.drawString("✈️ ─────────────── ➔", 140, 98);
             g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-            g2.setColor(new Color(52, 152, 219));
+            g2.setColor(new Color(211, 84, 0));
             g2.drawString("NON-STOP EXPEDITION", 175, 116);
 
             // Destination Airport Code

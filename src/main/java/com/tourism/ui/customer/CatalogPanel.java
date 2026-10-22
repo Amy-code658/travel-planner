@@ -264,7 +264,7 @@ public class CatalogPanel extends JPanel {
         centerPanel.setOpaque(false);
 
         // Responsive grid panel
-        gridPanel = new JPanel(new GridLayout(0, currentColumns, 18, 18));
+        gridPanel = new JPanel(new GridLayout(0, currentColumns, 14, 14));
         gridPanel.setOpaque(false);
 
         // Place grid at the NORTH of wrapper so it doesn't vertically stretch cards
@@ -309,7 +309,7 @@ public class CatalogPanel extends JPanel {
 
         if (newCols != currentColumns) {
             currentColumns = newCols;
-            gridPanel.setLayout(new GridLayout(0, currentColumns, 18, 18));
+            gridPanel.setLayout(new GridLayout(0, currentColumns, 14, 14));
             gridPanel.revalidate();
             gridPanel.repaint();
         }

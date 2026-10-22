@@ -79,7 +79,7 @@ public class ItineraryDialog extends JDialog {
 
         JLabel subLabel = new JLabel("📸 " + destInfo + " • ⏱ " + (pkg != null ? pkg.getDurationDays() : 0) + " Days");
         subLabel.setFont(ThemeConstants.FONT_SUBHEADER);
-        subLabel.setForeground(new Color(240, 245, 255));
+        subLabel.setForeground(new Color(254, 242, 237));
 
         headerPanel.add(titleLabel, BorderLayout.NORTH);
         headerPanel.add(subLabel, BorderLayout.SOUTH);
@@ -134,7 +134,7 @@ public class ItineraryDialog extends JDialog {
 
         JButton downloadPdfBtn = new JButton("📄 Download PDF Itinerary");
         downloadPdfBtn.setFont(ThemeConstants.FONT_BOLD);
-        downloadPdfBtn.setBackground(new Color(235, 245, 251));
+        downloadPdfBtn.setBackground(new Color(254, 243, 237));
         downloadPdfBtn.setForeground(ThemeConstants.PRIMARY_DARK);
         downloadPdfBtn.setFocusPainted(false);
         downloadPdfBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
