@@ -29,7 +29,7 @@ public class Main {
         FlatLightLaf.setup();
 
         // Run UI on Event Dispatch Thread (EDT)
-        SwingUtilities.invokeLater(Main::createAndShowGUI);
+        SwingUtilities.invokeLater(() -> new com.tourism.ui.auth.LoginFrame().setVisible(true));
     }
 
     private static void printHeadlessStatus() {
