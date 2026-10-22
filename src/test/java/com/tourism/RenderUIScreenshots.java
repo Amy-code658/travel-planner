@@ -71,17 +71,40 @@ public class RenderUIScreenshots {
 
             customerFrame.dispose();
 
-            // 3. Render Admin Main Frame (Reports & Analytics)
+            // 4. Render Admin Main Frame (Tab 0: Customer Roster & Bookings)
             User admin = userDAO.findByEmail("admin@tourism.com");
             if (admin == null) {
                 admin = new User(1, "System Administrator", "admin@tourism.com", "", "ADMIN", "9998887770");
             }
             AdminMainFrame adminFrame = new AdminMainFrame(admin);
             adminFrame.addNotify();
-            adminFrame.setSize(1100, 750);
+            adminFrame.setSize(1150, 750);
             adminFrame.validate();
             Thread.sleep(800);
-            saveComponentImage(adminFrame.getContentPane(), new File(outDir + "ui_admin_reports.png"));
+            saveComponentImage(adminFrame.getContentPane(), new File(outDir + "ui_admin_customers.png"));
+
+            // Render Customer Dossier Dialog
+            com.tourism.dao.AdminDAO adminDAO = new com.tourism.dao.AdminDAO();
+            java.util.List<com.tourism.model.CustomerBookingDossier> dossiers = adminDAO.getAllCustomerBookings();
+            if (!dossiers.isEmpty()) {
+                com.tourism.ui.admin.CustomerDossierDialog dossierDialog =
+                        new com.tourism.ui.admin.CustomerDossierDialog(adminFrame, dossiers.get(0), null);
+                dossierDialog.addNotify();
+                dossierDialog.setSize(680, 640);
+                dossierDialog.validate();
+                Thread.sleep(500);
+                saveComponentImage(dossierDialog.getContentPane(), new File(outDir + "ui_admin_dossier.png"));
+                dossierDialog.dispose();
+            }
+
+            // Switch to Admin Tab 1 (Reports & Visual Analytics)
+            JTabbedPane adminTabs = findTabbedPane(adminFrame);
+            if (adminTabs != null && adminTabs.getTabCount() > 1) {
+                adminTabs.setSelectedIndex(1);
+                adminFrame.validate();
+                Thread.sleep(600);
+                saveComponentImage(adminFrame.getContentPane(), new File(outDir + "ui_admin_reports.png"));
+            }
             adminFrame.dispose();
 
             System.out.println("✅ All UI screenshots captured successfully!");

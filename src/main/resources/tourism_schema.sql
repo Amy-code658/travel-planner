@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     number_of_guests INT NOT NULL,
     total_cost DECIMAL(10, 2) NOT NULL,
     booking_status ENUM('CONFIRMED', 'CANCELLED', 'COMPLETED') DEFAULT 'CONFIRMED',
+    payment_status VARCHAR(50) DEFAULT 'PAID',
     refund_amount DECIMAL(10, 2) DEFAULT 0.00,
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,

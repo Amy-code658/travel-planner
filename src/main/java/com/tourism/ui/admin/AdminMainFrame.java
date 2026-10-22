@@ -87,9 +87,9 @@ public class AdminMainFrame extends JFrame {
         kpiBar.setBackground(ThemeConstants.BACKGROUND);
         kpiBar.setBorder(new EmptyBorder(12, 20, 6, 20));
 
-        kpiBar.add(createKPICard("👥", "Total Users", "3 Accounts", "2 Customers, 1 Admin", new Color(41, 128, 185)));
-        kpiBar.add(createKPICard("📦", "Active Packages", "6 Tours", "Available for booking", new Color(39, 174, 96)));
-        kpiBar.add(createKPICard("💰", "Gross Volume", "$3,800", "System transaction value", new Color(243, 156, 18)));
+        kpiBar.add(createKPICard("👥", "Total Customers", "6 Accounts", "Registered users", new Color(41, 128, 185)));
+        kpiBar.add(createKPICard("📦", "Active Packages", "6 Tours", "Available in catalog", new Color(39, 174, 96)));
+        kpiBar.add(createKPICard("💳", "Fulfillment Rate", "80% Settled", "Payment verified", new Color(22, 160, 133)));
         kpiBar.add(createKPICard("📊", "Top Destination", "Bali, Indonesia", "Leading booking volume", new Color(142, 68, 173)));
 
         JPanel northWrapper = new JPanel(new BorderLayout());
@@ -102,13 +102,24 @@ public class AdminMainFrame extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(ThemeConstants.FONT_BOLD);
 
-        // Tab 1: Visual Reports & Charts
+        // Tab 1: Customer Roster, Package Selections & Payment Settlements (Primary Enterprise View)
+        CustomerBookingsAdminPanel customerBookingsPanel = new CustomerBookingsAdminPanel();
+        tabbedPane.addTab("  👥 Customers & Bookings  ", customerBookingsPanel);
+
+        // Tab 2: Visual Reports & Charts
         ReportsPanel reportsPanel = new ReportsPanel();
         tabbedPane.addTab("  📊 Reports & Visual Analytics  ", reportsPanel);
 
-        // Tab 2: Catalog Overview
+        // Tab 3: Catalog Overview
         CatalogPanel catalogPanel = new CatalogPanel();
         tabbedPane.addTab("  🌴 Package Overview  ", catalogPanel);
+
+        // Auto-refresh roster when switching tabs
+        tabbedPane.addChangeListener(e -> {
+            if (tabbedPane.getSelectedComponent() == customerBookingsPanel) {
+                customerBookingsPanel.loadData();
+            }
+        });
 
         contentPane.add(tabbedPane, BorderLayout.CENTER);
         add(contentPane);
