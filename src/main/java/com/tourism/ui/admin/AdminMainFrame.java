@@ -64,7 +64,21 @@ public class AdminMainFrame extends JFrame {
         userPanel.add(logoutBtn);
         headerBar.add(userPanel, BorderLayout.EAST);
 
-        contentPane.add(headerBar, BorderLayout.NORTH);
+        // Top KPI metrics row
+        JPanel kpiBar = new JPanel(new GridLayout(1, 4, 12, 0));
+        kpiBar.setBackground(ThemeConstants.BACKGROUND);
+        kpiBar.setBorder(new EmptyBorder(12, 20, 6, 20));
+
+        kpiBar.add(createKPICard("👥", "Total Users", "3 Accounts", "2 Customers, 1 Admin", new Color(41, 128, 185)));
+        kpiBar.add(createKPICard("📦", "Active Packages", "6 Tours", "Available for booking", new Color(39, 174, 96)));
+        kpiBar.add(createKPICard("💰", "Gross Volume", "$3,800", "System transaction value", new Color(243, 156, 18)));
+        kpiBar.add(createKPICard("📊", "Top Destination", "Bali, Indonesia", "Leading booking volume", new Color(142, 68, 173)));
+
+        JPanel northWrapper = new JPanel(new BorderLayout());
+        northWrapper.add(headerBar, BorderLayout.NORTH);
+        northWrapper.add(kpiBar, BorderLayout.SOUTH);
+
+        contentPane.add(northWrapper, BorderLayout.NORTH);
 
         // --- Tabs ---
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -93,5 +107,34 @@ public class AdminMainFrame extends JFrame {
             new LoginFrame().setVisible(true);
             dispose();
         }
+    }
+
+    private JPanel createKPICard(String icon, String title, String value, String subtitle, Color accentColor) {
+        JPanel card = new JPanel(new BorderLayout(4, 4));
+        card.setBackground(ThemeConstants.CARD_BG);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(3, 0, 0, 0, accentColor),
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(225, 230, 235), 1),
+                        BorderFactory.createEmptyBorder(10, 14, 10, 14)
+                )
+        ));
+
+        JLabel titleLabel = new JLabel(icon + " " + title);
+        titleLabel.setFont(ThemeConstants.FONT_SMALL);
+        titleLabel.setForeground(ThemeConstants.TEXT_MUTED);
+        card.add(titleLabel, BorderLayout.NORTH);
+
+        JLabel valueLabel = new JLabel(value);
+        valueLabel.setFont(ThemeConstants.FONT_HEADER);
+        valueLabel.setForeground(ThemeConstants.TEXT_PRIMARY);
+        card.add(valueLabel, BorderLayout.CENTER);
+
+        JLabel subLabel = new JLabel(subtitle);
+        subLabel.setFont(ThemeConstants.FONT_SMALL);
+        subLabel.setForeground(accentColor);
+        card.add(subLabel, BorderLayout.SOUTH);
+
+        return card;
     }
 }

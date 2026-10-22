@@ -133,15 +133,7 @@ public class PackageCard extends JPanel {
         JPanel topRow = new JPanel(new BorderLayout());
         topRow.setOpaque(false);
 
-        JLabel categoryBadge = new JLabel(" " + category.toUpperCase() + " ");
-        categoryBadge.setFont(ThemeConstants.FONT_SMALL);
-        categoryBadge.setForeground(Color.WHITE);
-        categoryBadge.setOpaque(true);
-        categoryBadge.setBackground(new Color(0, 0, 0, 140));
-        categoryBadge.setBorder(new CompoundBorder(
-                new LineBorder(new Color(255, 255, 255, 100), 1, true),
-                new EmptyBorder(2, 6, 2, 6)
-        ));
+        JLabel categoryBadge = createCategoryPill(category);
         topRow.add(categoryBadge, BorderLayout.WEST);
 
         // Match Score Badge placeholder (for Dev 4 recommendations)
@@ -199,6 +191,10 @@ public class PackageCard extends JPanel {
             JLabel seasonTag = createTag("☀️ " + travelPackage.getSeason(), new Color(254, 249, 231), new Color(183, 119, 0));
             tagsRow.add(seasonTag);
         }
+
+        // Gold star rating badge
+        JLabel ratingTag = createTag("★ 4.8", new Color(254, 249, 231), new Color(214, 137, 16));
+        tagsRow.add(ratingTag);
 
         body.add(tagsRow);
 
@@ -388,6 +384,39 @@ public class PackageCard extends JPanel {
                 new EmptyBorder(2, 6, 2, 6)
         ));
         return tag;
+    }
+
+    private JLabel createCategoryPill(String category) {
+        Color bg = new Color(240, 243, 246);
+        Color fg = ThemeConstants.TEXT_PRIMARY;
+
+        if ("Beach".equalsIgnoreCase(category)) {
+            bg = new Color(224, 247, 250);
+            fg = new Color(0, 131, 143);
+        } else if ("Adventure".equalsIgnoreCase(category)) {
+            bg = new Color(255, 243, 224);
+            fg = new Color(230, 81, 0);
+        } else if ("Culture".equalsIgnoreCase(category)) {
+            bg = new Color(243, 229, 245);
+            fg = new Color(106, 27, 154);
+        } else if ("Nature".equalsIgnoreCase(category)) {
+            bg = new Color(232, 245, 233);
+            fg = new Color(46, 125, 50);
+        } else if ("Luxury".equalsIgnoreCase(category)) {
+            bg = new Color(254, 249, 231);
+            fg = new Color(183, 149, 11);
+        }
+
+        JLabel pill = new JLabel(" " + (category != null ? category.toUpperCase() : "TOUR") + " ");
+        pill.setFont(ThemeConstants.FONT_SMALL);
+        pill.setForeground(fg);
+        pill.setOpaque(true);
+        pill.setBackground(bg);
+        pill.setBorder(new CompoundBorder(
+                new LineBorder(new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 90), 1, true),
+                new EmptyBorder(3, 8, 3, 8)
+        ));
+        return pill;
     }
 
     public Package getPackage() {

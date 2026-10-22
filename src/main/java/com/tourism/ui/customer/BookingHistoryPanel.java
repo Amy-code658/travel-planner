@@ -56,7 +56,30 @@ public class BookingHistoryPanel extends JPanel {
         table = new JTable(tableModel);
         table.setDefaultEditor(Object.class, null);                   // cells are read-only
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setRowHeight(26);
+        table.setRowHeight(28);
+
+        // Status column pill badge renderer
+        table.getColumnModel().getColumn(5).setCellRenderer((tbl, value, isSelected, hasFocus, row, col) -> {
+            String status = value != null ? value.toString() : "";
+            JLabel pill = new JLabel(" " + status + " ", SwingConstants.CENTER);
+            pill.setFont(pill.getFont().deriveFont(Font.BOLD, 11f));
+            pill.setOpaque(true);
+
+            if ("CONFIRMED".equalsIgnoreCase(status)) {
+                pill.setBackground(new Color(232, 248, 245));
+                pill.setForeground(new Color(39, 174, 96));
+                pill.setBorder(BorderFactory.createLineBorder(new Color(39, 174, 96, 100), 1, true));
+            } else if ("CANCELLED".equalsIgnoreCase(status)) {
+                pill.setBackground(new Color(253, 237, 236));
+                pill.setForeground(new Color(231, 76, 60));
+                pill.setBorder(BorderFactory.createLineBorder(new Color(231, 76, 60, 100), 1, true));
+            } else {
+                pill.setBackground(new Color(235, 245, 251));
+                pill.setForeground(new Color(41, 128, 185));
+                pill.setBorder(BorderFactory.createLineBorder(new Color(41, 128, 185, 100), 1, true));
+            }
+            return pill;
+        });
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JButton refreshButton = new JButton("Refresh");

@@ -36,11 +36,42 @@ public class ReviewDialog extends JDialog {
 
         JPanel fields = new JPanel(new BorderLayout(8, 8));
 
-        JPanel ratingPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        ratingPanel.add(new JLabel("Rating (1-5):"));
+        JPanel ratingPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        JLabel rateLabel = new JLabel("Your Rating: ");
+        rateLabel.setFont(ThemeConstants.FONT_BOLD);
+        ratingPanel.add(rateLabel);
 
         ratingBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
         ratingBox.setSelectedItem(5);
+        ratingBox.setVisible(false); // Hidden behind interactive stars
+
+        JButton[] stars = new JButton[5];
+        for (int i = 0; i < 5; i++) {
+            final int starVal = i + 1;
+            JButton starBtn = new JButton("★");
+            starBtn.setFont(new Font("Segoe UI", Font.BOLD, 24));
+            starBtn.setForeground(new Color(243, 156, 18));
+            starBtn.setBorderPainted(false);
+            starBtn.setContentAreaFilled(false);
+            starBtn.setFocusPainted(false);
+            starBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            starBtn.setMargin(new Insets(0, 1, 0, 1));
+
+            starBtn.addActionListener(e -> {
+                ratingBox.setSelectedItem(starVal);
+                for (int j = 0; j < 5; j++) {
+                    if (j < starVal) {
+                        stars[j].setText("★");
+                        stars[j].setForeground(new Color(243, 156, 18));
+                    } else {
+                        stars[j].setText("☆");
+                        stars[j].setForeground(new Color(189, 195, 199));
+                    }
+                }
+            });
+            stars[i] = starBtn;
+            ratingPanel.add(starBtn);
+        }
         ratingPanel.add(ratingBox);
 
         fields.add(ratingPanel, BorderLayout.NORTH);
