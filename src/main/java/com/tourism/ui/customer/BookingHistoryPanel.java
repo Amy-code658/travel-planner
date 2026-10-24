@@ -1,5 +1,6 @@
 package com.tourism.ui.customer;
 
+import com.tourism.config.CurrencyManager;
 import com.tourism.config.ThemeConstants;
 import com.tourism.dao.UserDAO;
 import com.tourism.model.Booking;
@@ -27,6 +28,7 @@ public class BookingHistoryPanel extends JPanel {
 
     private final int userId;
     private JLabel notificationLabel;
+    private String lastCancellationMessage = null;
     private final BookingService bookingService = new BookingService();
     private final DefaultTableModel tableModel;
     private final JTable table;
@@ -85,13 +87,43 @@ public class BookingHistoryPanel extends JPanel {
             }
             return pill;
         });
+
+        // Context Menu for right-click interaction
+        JPopupMenu contextMenu = new JPopupMenu();
+        JMenuItem cancelMenuItem = new JMenuItem("❌ Cancel Booking");
+        JMenuItem reviewMenuItem = new JMenuItem("⭐ Rate & Review Place");
+        JMenuItem passMenuItem = new JMenuItem("✈️ View Boarding Pass");
+        JMenuItem invoiceMenuItem = new JMenuItem("📄 Download PDF Invoice");
+
+        cancelMenuItem.addActionListener(e -> onCancel());
+        reviewMenuItem.addActionListener(e -> onReview());
+        passMenuItem.addActionListener(e -> onShowBoardingPass());
+        invoiceMenuItem.addActionListener(e -> onDownloadInvoice());
+
+        contextMenu.add(cancelMenuItem);
+        contextMenu.add(reviewMenuItem);
+        contextMenu.addSeparator();
+        contextMenu.add(passMenuItem);
+        contextMenu.add(invoiceMenuItem);
+        table.setComponentPopupMenu(contextMenu);
+
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                int r = table.rowAtPoint(e.getPoint());
+                if (r >= 0 && r < table.getRowCount()) {
+                    table.setRowSelectionInterval(r, r);
+                }
+            }
+        });
+
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        JButton refreshButton = new JButton("Refresh");
+        JButton refreshButton = new JButton("🔄 Refresh");
         JButton boardingPassBtn = new JButton("✈️ Boarding Pass");
-        JButton downloadInvoiceBtn = new JButton("📄 Download PDF Invoice");
-        JButton cancelButton = new JButton("Cancel selected booking");
-        JButton reviewButton = new JButton("Write Review");
+        JButton downloadInvoiceBtn = new JButton("📄 PDF Invoice");
+        JButton cancelButton = new JButton("❌ Cancel Booking");
+        JButton reviewButton = new JButton("⭐ Rate & Review");
 
         boardingPassBtn.setBackground(new Color(232, 248, 245));
         boardingPassBtn.setForeground(new Color(22, 160, 133));
@@ -103,6 +135,18 @@ public class BookingHistoryPanel extends JPanel {
         downloadInvoiceBtn.setForeground(ThemeConstants.PRIMARY_DARK);
         downloadInvoiceBtn.setFocusPainted(false);
         downloadInvoiceBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        cancelButton.setBackground(new Color(254, 242, 242));
+        cancelButton.setForeground(new Color(220, 38, 38));
+        cancelButton.setFont(ThemeConstants.FONT_BOLD);
+        cancelButton.setFocusPainted(false);
+        cancelButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        reviewButton.setBackground(new Color(254, 249, 231));
+        reviewButton.setForeground(new Color(180, 83, 9));
+        reviewButton.setFont(ThemeConstants.FONT_BOLD);
+        reviewButton.setFocusPainted(false);
+        reviewButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         refreshButton.addActionListener(e -> loadBookings());
         boardingPassBtn.addActionListener(e -> onShowBoardingPass());
@@ -145,10 +189,24 @@ public class BookingHistoryPanel extends JPanel {
             }
         }
 
-        if (upcomingTrips > 0) {
+        if (lastCancellationMessage != null) {
+            notificationLabel.setText(lastCancellationMessage);
+            notificationLabel.setBackground(new Color(240, 253, 244));
+            notificationLabel.setForeground(new Color(21, 128, 61));
+            notificationLabel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(34, 197, 94), 1, true),
+                    BorderFactory.createEmptyBorder(10, 12, 10, 12)
+            ));
+            notificationLabel.setVisible(true);
+        } else if (upcomingTrips > 0) {
             notificationLabel.setText(
                     "Reminder: You have " + upcomingTrips
                             + " trip(s) departing within 7 days!"
+            );
+            notificationLabel.setBackground(new Color(255, 243, 205));
+            notificationLabel.setForeground(new Color(120, 80, 0));
+            notificationLabel.setBorder(
+                    BorderFactory.createEmptyBorder(10, 12, 10, 12)
             );
             notificationLabel.setVisible(true);
         } else {
@@ -174,64 +232,104 @@ public class BookingHistoryPanel extends JPanel {
     private void onCancel() {
         int row = table.getSelectedRow();
         if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a booking first.");
+            JOptionPane.showMessageDialog(this,
+                    "Please select a booking from the table to cancel.",
+                    "No Booking Selected",
+                    JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         Booking selected = bookings.get(row);
         if (Booking.CANCELLED.equals(selected.getStatus())) {
-            JOptionPane.showMessageDialog(this, "Only confirmed bookings can be cancelled.");
+            JOptionPane.showMessageDialog(this,
+                    "Booking #" + selected.getBookingId() + " is already cancelled.",
+                    "Already Cancelled",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        double refund = bookingService.calculateRefund(selected);
-        com.tourism.config.CurrencyManager cm = com.tourism.config.CurrencyManager.getInstance();
-        String message = String.format(
-                "Cancel booking #%d (%s)?%n%nYou will get a refund of %s.%n"
-              + "Refund policy: 80%% if cancelled more than 48 hours before the trip, otherwise no refund.",
-                selected.getBookingId(), selected.getPackageTitle(), cm.format(refund));
-
-        int choice = JOptionPane.showConfirmDialog(this, message, "Confirm cancellation",
-                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        if (choice != JOptionPane.YES_OPTION) {
+        if (Booking.COMPLETED.equals(selected.getStatus())) {
+            JOptionPane.showMessageDialog(this,
+                    "Completed trips cannot be cancelled.",
+                    "Trip Completed",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        Window window = SwingUtilities.getWindowAncestor(this);
+        CancelBookingDialog dialog = new CancelBookingDialog(window, selected, bookingService);
+        dialog.setVisible(true);
+
+        if (!dialog.isConfirmed()) {
+            return;
+        }
+
+        CurrencyManager cm = CurrencyManager.getInstance();
         try {
             double refunded = bookingService.cancelBooking(selected.getBookingId(), userId);
-            JOptionPane.showMessageDialog(this, "Booking cancelled. Refund: " + cm.format(refunded));
+
+            // Rich Credit Back Notification Modal
+            String creditMessage = String.format(
+                "<html><body style='width: 340px; font-family: Segoe UI;'>" +
+                "<h3 style='color: #15803d; margin-top: 2px; margin-bottom: 6px;'>✅ Booking Cancelled &amp; Refund Initiated</h3>" +
+                "<p>Booking <b>#BKG-%d</b> (<i>%s</i>) has been successfully cancelled.</p><br>" +
+                "<div style='background-color: #f0fdf4; border: 1px solid #22c55e; padding: 12px; border-radius: 6px;'>" +
+                "<p style='margin: 0; font-size: 11px; color: #166534; font-weight: bold;'>REFUND CREDIT NOTIFICATION</p>" +
+                "<p style='margin: 4px 0 0 0; font-size: 18px; color: #15803d;'><b>Amount to be Credited Back: %s</b></p>" +
+                "<p style='margin: 6px 0 0 0; font-size: 11px; color: #374151;'>This amount will be credited back to your original payment method (Credit Card / UPI) within <b>3 to 5 business days</b>.</p>" +
+                "</div><br>" +
+                "<p style='font-size: 10px; color: #6b7280;'>Cancellation Reference: CNL-BKG%d</p>" +
+                "</body></html>",
+                selected.getBookingId(), selected.getPackageTitle(), cm.format(refunded), selected.getBookingId()
+            );
+
+            JOptionPane.showMessageDialog(this,
+                    new JLabel(creditMessage),
+                    "Cancellation & Refund Notification",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            lastCancellationMessage = "✅ Notification: Booking #" + selected.getBookingId() + " (" + selected.getPackageTitle()
+                    + ") was cancelled. An amount of " + cm.format(refunded) + " will be credited back to your original payment method.";
+
             loadBookings();
         } catch (BookingException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Cancellation failed", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    ex.getMessage(),
+                    "Cancellation Failed",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
+
     private void onReview() {
         int row = table.getSelectedRow();
 
         if (row == -1) {
             JOptionPane.showMessageDialog(this,
-                    "Please select a booking first.");
+                    "Please select a booking from the table to review.",
+                    "No Booking Selected",
+                    JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         Booking selected = bookings.get(row);
 
-        if (!Booking.COMPLETED.equals(selected.getStatus())) {
+        if (Booking.CANCELLED.equals(selected.getStatus())) {
             JOptionPane.showMessageDialog(this,
-                    "You can only review trips that have already started and are not cancelled.");
+                    "Cancelled bookings cannot be reviewed.",
+                    "Cannot Review Cancelled Trip",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         Window window = SwingUtilities.getWindowAncestor(this);
-        Frame owner = window instanceof Frame ? (Frame) window : null;
-
         ReviewDialog dialog = new ReviewDialog(
-                owner,
+                window,
                 userId,
                 selected.getPackageId(),
-                selected.getPackageTitle()
+                selected.getPackageTitle(),
+                this::loadBookings
         );
-
+        dialog.openWriteReviewTab();
         dialog.setVisible(true);
     }
 

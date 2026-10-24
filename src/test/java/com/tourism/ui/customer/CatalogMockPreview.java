@@ -213,6 +213,11 @@ public class CatalogMockPreview {
 
         @Override
         public List<Package> searchPackages(String keyword, String category, Double maxPrice, String season) {
+            return searchPackages(keyword, category, maxPrice, season, null);
+        }
+
+        @Override
+        public List<Package> searchPackages(String keyword, String category, Double maxPrice, String season, Double minRating) {
             return packages.stream().filter(p -> {
                 if (!p.isActive()) return false;
 
@@ -260,6 +265,13 @@ public class CatalogMockPreview {
                     !"All Seasons".equalsIgnoreCase(season.trim())) {
                     String s = season.trim().toLowerCase();
                     if (p.getSeason() == null || !p.getSeason().trim().toLowerCase().equals(s)) {
+                        return false;
+                    }
+                }
+
+                // Rating filter
+                if (minRating != null && minRating > 0) {
+                    if (p.getAverageRating() < minRating) {
                         return false;
                     }
                 }

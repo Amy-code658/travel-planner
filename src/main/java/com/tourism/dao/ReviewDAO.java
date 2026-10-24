@@ -157,7 +157,7 @@ public class ReviewDAO {
     }
 
     /**
-     * Calculates the average rating for a package.
+     * Calculates the average rating for a package, rounded to 1 decimal place.
      */
     public double getAverageRating(int packageId)
             throws SQLException {
@@ -180,11 +180,132 @@ public class ReviewDAO {
             try (ResultSet resultSet = statement.executeQuery()) {
 
                 if (resultSet.next()) {
-                    return resultSet.getDouble("average_rating");
+                    double raw = resultSet.getDouble("average_rating");
+                    return Math.round(raw * 10.0) / 10.0;
                 }
             }
         }
 
         return 0.0;
+    }
+
+    /**
+     * Returns the total number of reviews for a package.
+     */
+    public int getReviewCount(int packageId) throws SQLException {
+        String sql = "SELECT COUNT(*) AS review_count FROM reviews WHERE package_id = ?";
+        Connection connection = DBConnection.getInstance().getConnection();
+
+        if (connection == null) {
+            throw new SQLException("Database connection is unavailable.");
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, packageId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("review_count");
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Calculates the average rating for a destination (place) across all its packages.
+     */
+    public double getAverageRatingForDestination(int destinationId) throws SQLException {
+        String sql = "SELECT AVG(r.rating) AS avg_rating "
+                + "FROM reviews r "
+                + "JOIN travel_packages tp ON r.package_id = tp.package_id "
+                + "WHERE tp.destination_id = ?";
+
+        Connection connection = DBConnection.getInstance().getConnection();
+        if (connection == null) {
+            throw new SQLException("Database connection is unavailable.");
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, destinationId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    double raw = resultSet.getDouble("avg_rating");
+                    return Math.round(raw * 10.0) / 10.0;
+                }
+            }
+        }
+        return 0.0;
+    }
+
+    /**
+     * Returns the total review count for a destination (place).
+     */
+    public int getReviewCountForDestination(int destinationId) throws SQLException {
+        String sql = "SELECT COUNT(r.review_id) AS review_count "
+                + "FROM reviews r "
+                + "JOIN travel_packages tp ON r.package_id = tp.package_id "
+                + "WHERE tp.destination_id = ?";
+
+        Connection connection = DBConnection.getInstance().getConnection();
+        if (connection == null) {
+            throw new SQLException("Database connection is unavailable.");
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, destinationId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("review_count");
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Retrieves all reviews for a destination (place), newest first.
+     */
+    public List<Review> getReviewsByDestinationId(int destinationId) throws SQLException {
+        List<Review> reviews = new ArrayList<>();
+        String sql = "SELECT r.review_id, r.user_id, r.package_id, "
+                + "r.rating, r.comment, r.review_date, "
+                + "u.full_name "
+                + "FROM reviews r "
+                + "JOIN travel_packages tp ON r.package_id = tp.package_id "
+                + "JOIN users u ON r.user_id = u.user_id "
+                + "WHERE tp.destination_id = ? "
+                + "ORDER BY r.review_date DESC";
+
+        Connection connection = DBConnection.getInstance().getConnection();
+        if (connection == null) {
+            throw new SQLException("Database connection is unavailable.");
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, destinationId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Review review = new Review();
+                    review.setReviewId(resultSet.getInt("review_id"));
+                    review.setUserId(resultSet.getInt("user_id"));
+                    review.setPackageId(resultSet.getInt("package_id"));
+                    review.setRating(resultSet.getInt("rating"));
+                    review.setComment(resultSet.getString("comment"));
+
+                    Timestamp timestamp = resultSet.getTimestamp("review_date");
+                    if (timestamp != null) {
+                        review.setReviewDate(timestamp.toLocalDateTime());
+                    }
+
+                    User user = new User();
+                    user.setUserId(review.getUserId());
+                    user.setFullName(resultSet.getString("full_name"));
+                    review.setUser(user);
+
+                    reviews.add(review);
+                }
+            }
+        }
+        return reviews;
     }
 }

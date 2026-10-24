@@ -77,7 +77,10 @@ public class ItineraryDialog extends JDialog {
         titleLabel.setFont(ThemeConstants.FONT_HEADER_LARGE);
         titleLabel.setForeground(Color.WHITE);
 
-        JLabel subLabel = new JLabel("📸 " + destInfo + " • ⏱ " + (pkg != null ? pkg.getDurationDays() : 0) + " Days");
+        String ratingStr = (pkg != null && pkg.getReviewCount() > 0)
+                ? String.format(" • ★ %.1f (%d reviews)", pkg.getAverageRating(), pkg.getReviewCount())
+                : " • ★ New Place";
+        JLabel subLabel = new JLabel("📸 " + destInfo + " • ⏱ " + (pkg != null ? pkg.getDurationDays() : 0) + " Days" + ratingStr);
         subLabel.setFont(ThemeConstants.FONT_SUBHEADER);
         subLabel.setForeground(new Color(254, 242, 237));
 
@@ -132,6 +135,27 @@ public class ItineraryDialog extends JDialog {
             footerPanel.add(costGrid, BorderLayout.CENTER);
         }
 
+        JButton reviewsBtn = new JButton("⭐ Customer Reviews");
+        reviewsBtn.setFont(ThemeConstants.FONT_BOLD);
+        reviewsBtn.setBackground(new Color(254, 249, 231));
+        reviewsBtn.setForeground(new Color(180, 83, 9));
+        reviewsBtn.setFocusPainted(false);
+        reviewsBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        reviewsBtn.addActionListener(e -> {
+            if (pkg != null) {
+                int uid = (com.tourism.model.UserSession.getInstance().getCurrentUser() != null)
+                        ? com.tourism.model.UserSession.getInstance().getCurrentUser().getUserId()
+                        : 2;
+                new ReviewDialog(this, uid, pkg.getPackageId(), pkg.getTitle(), () -> {
+                    try {
+                        com.tourism.dao.ReviewDAO rDao = new com.tourism.dao.ReviewDAO();
+                        pkg.setAverageRating(rDao.getAverageRating(pkg.getPackageId()));
+                        pkg.setReviewCount(rDao.getReviewCount(pkg.getPackageId()));
+                    } catch (Exception ignored) {}
+                }).setVisible(true);
+            }
+        });
+
         JButton downloadPdfBtn = new JButton("📄 Download PDF Itinerary");
         downloadPdfBtn.setFont(ThemeConstants.FONT_BOLD);
         downloadPdfBtn.setBackground(new Color(254, 243, 237));
@@ -150,6 +174,7 @@ public class ItineraryDialog extends JDialog {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setOpaque(false);
+        buttonPanel.add(reviewsBtn);
         buttonPanel.add(downloadPdfBtn);
         buttonPanel.add(closeButton);
         footerPanel.add(buttonPanel, BorderLayout.EAST);

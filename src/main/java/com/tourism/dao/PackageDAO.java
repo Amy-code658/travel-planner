@@ -24,7 +24,9 @@ public class PackageDAO {
             "    p.package_id, p.destination_id, p.title, p.description AS pkg_description, " +
             "    p.duration_days, p.base_price, p.season, p.discount_percentage, p.is_active, " +
             "    d.name AS dest_name, d.country AS dest_country, d.description AS dest_description, " +
-            "    d.category AS dest_category, d.estimated_daily_cost AS dest_daily_cost, d.image_url AS dest_image_url " +
+            "    d.category AS dest_category, d.estimated_daily_cost AS dest_daily_cost, d.image_url AS dest_image_url, " +
+            "    COALESCE((SELECT AVG(rating) FROM reviews WHERE package_id = p.package_id), 0.0) AS avg_rating, " +
+            "    COALESCE((SELECT COUNT(*) FROM reviews WHERE package_id = p.package_id), 0) AS review_count " +
             "FROM travel_packages p " +
             "LEFT JOIN destinations d ON p.destination_id = d.destination_id ";
 
@@ -170,13 +172,14 @@ public class PackageDAO {
     /**
      * Dynamically searches and filters active packages using parameterized queries.
      *
-     * @param keyword  Search term for title, description, destination name, or country (optional).
-     * @param category Category filter e.g. "Adventure", "Beach" (optional, "All" ignored).
-     * @param maxPrice Maximum final price filter (optional if null or <= 0).
-     * @param season   Season filter e.g. "Summer", "Winter" (optional, "All" ignored).
+     * @param keyword   Search term for title, description, destination name, or country (optional).
+     * @param category  Category filter e.g. "Adventure", "Beach" (optional, "All" ignored).
+     * @param maxPrice  Maximum final price filter (optional if null or <= 0).
+     * @param season    Season filter e.g. "Summer", "Winter" (optional, "All" ignored).
+     * @param minRating Minimum average rating filter (optional if null or <= 0).
      * @return List of packages matching all specified criteria.
      */
-    public List<Package> searchPackages(String keyword, String category, Double maxPrice, String season) {
+    public List<Package> searchPackages(String keyword, String category, Double maxPrice, String season, Double minRating) {
         List<Package> list = new ArrayList<>();
         List<Object> params = new ArrayList<>();
 
@@ -218,6 +221,12 @@ public class PackageDAO {
             params.add(season.trim());
         }
 
+        // Minimum rating filter
+        if (minRating != null && minRating > 0) {
+            sql.append("AND COALESCE((SELECT AVG(rating) FROM reviews WHERE package_id = p.package_id), 0.0) >= ? ");
+            params.add(minRating);
+        }
+
         sql.append("ORDER BY p.package_id ASC");
 
         Connection conn = DBConnection.getInstance().getConnection();
@@ -251,6 +260,13 @@ public class PackageDAO {
         }
 
         return list;
+    }
+
+    /**
+     * Backward-compatible 4-parameter searchPackages method.
+     */
+    public List<Package> searchPackages(String keyword, String category, Double maxPrice, String season) {
+        return searchPackages(keyword, category, maxPrice, season, null);
     }
 
     /**
@@ -387,6 +403,20 @@ public class PackageDAO {
             dest.setEstimatedDailyCost(rs.getDouble("dest_daily_cost"));
             dest.setImageUrl(rs.getString("dest_image_url"));
             pkg.setDestination(dest);
+        }
+
+        // Map aggregated review rating and count if available
+        try {
+            double rawRating = rs.getDouble("avg_rating");
+            double roundedRating = Math.round(rawRating * 10.0) / 10.0;
+            pkg.setAverageRating(roundedRating);
+            pkg.setReviewCount(rs.getInt("review_count"));
+            if (pkg.getDestination() != null) {
+                pkg.getDestination().setAverageRating(roundedRating);
+                pkg.getDestination().setReviewCount(rs.getInt("review_count"));
+            }
+        } catch (SQLException ignored) {
+            // Columns not in result set
         }
 
         return pkg;

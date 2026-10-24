@@ -13,6 +13,8 @@ public class Package {
     private String season;
     private double discountPercentage;
     private boolean active;
+    private double averageRating;
+    private int reviewCount;
 
     // Optional joined destination for UI display convenience
     private Destination destination;
@@ -116,6 +118,22 @@ public class Package {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
     }
 
     public Destination getDestination() {

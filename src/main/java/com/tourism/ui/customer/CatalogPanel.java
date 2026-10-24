@@ -31,6 +31,7 @@ public class CatalogPanel extends JPanel {
     private JComboBox<String> categoryCombo;
     private JComboBox<String> seasonCombo;
     private JComboBox<String> priceCombo;
+    private JComboBox<String> ratingCombo;
     private JButton searchButton;
     private JButton resetButton;
     private JLabel resultCountLabel;
@@ -172,6 +173,22 @@ public class CatalogPanel extends JPanel {
         priceCombo.addActionListener(e -> applyFiltersAsync());
         filterCard.add(priceCombo);
 
+        // Rating Filter
+        JLabel ratingLabel = new JLabel("Rating:");
+        ratingLabel.setFont(ThemeConstants.FONT_BOLD);
+        ratingLabel.setForeground(ThemeConstants.TEXT_PRIMARY);
+        filterCard.add(ratingLabel);
+
+        ratingCombo = new JComboBox<>(new String[]{
+                "All Ratings",
+                "★ 4.5 & above",
+                "★ 4.0 & above",
+                "★ 3.0 & above"
+        });
+        ratingCombo.setFont(ThemeConstants.FONT_BODY);
+        ratingCombo.addActionListener(e -> applyFiltersAsync());
+        filterCard.add(ratingCombo);
+
         // Action Buttons
         searchButton = new JButton("Filter");
         searchButton.setFont(ThemeConstants.FONT_BOLD);
@@ -199,29 +216,40 @@ public class CatalogPanel extends JPanel {
         chipHint.setForeground(ThemeConstants.TEXT_MUTED);
         chipsRow.add(chipHint);
 
+        chipsRow.add(createChipButton("⭐ Top Rated (4.5+)", () -> {
+            ratingCombo.setSelectedItem("★ 4.5 & above");
+            categoryCombo.setSelectedIndex(0);
+            priceCombo.setSelectedIndex(0);
+        }));
         chipsRow.add(createChipButton("🔥 Under $500", () -> {
             priceCombo.setSelectedItem("Under $500");
             categoryCombo.setSelectedIndex(0);
+            ratingCombo.setSelectedIndex(0);
         }));
         chipsRow.add(createChipButton("🏖️ Beach Retreats", () -> {
             selectCategoryIfPresent("Beach");
             priceCombo.setSelectedIndex(0);
+            ratingCombo.setSelectedIndex(0);
         }));
         chipsRow.add(createChipButton("🏔️ Mountain Adventures", () -> {
             selectCategoryIfPresent("Adventure");
             priceCombo.setSelectedIndex(0);
+            ratingCombo.setSelectedIndex(0);
         }));
         chipsRow.add(createChipButton("🌿 Nature Escapes", () -> {
             selectCategoryIfPresent("Nature");
             priceCombo.setSelectedIndex(0);
+            ratingCombo.setSelectedIndex(0);
         }));
         chipsRow.add(createChipButton("🏛️ Cultural Heritage", () -> {
             selectCategoryIfPresent("Culture");
             priceCombo.setSelectedIndex(0);
+            ratingCombo.setSelectedIndex(0);
         }));
         chipsRow.add(createChipButton("✨ Luxury Tours", () -> {
             selectCategoryIfPresent("Luxury");
             priceCombo.setSelectedIndex(0);
+            ratingCombo.setSelectedIndex(0);
         }));
 
         northContainer.add(chipsRow);
@@ -353,6 +381,7 @@ public class CatalogPanel extends JPanel {
         String category = categoryCombo != null ? (String) categoryCombo.getSelectedItem() : "All Categories";
         String season = seasonCombo != null ? (String) seasonCombo.getSelectedItem() : "All Seasons";
         Double maxPrice = parseSelectedMaxPrice();
+        Double minRating = parseSelectedMinRating();
 
         // Show loading status
         showLoadingState();
@@ -362,7 +391,7 @@ public class CatalogPanel extends JPanel {
             protected List<Package> doInBackground() {
                 String catParam = "All Categories".equalsIgnoreCase(category) ? null : category;
                 String seasonParam = "All Seasons".equalsIgnoreCase(season) ? null : season;
-                return packageDAO.searchPackages(keyword, catParam, maxPrice, seasonParam);
+                return packageDAO.searchPackages(keyword, catParam, maxPrice, seasonParam, minRating);
             }
 
             @Override
@@ -376,6 +405,21 @@ public class CatalogPanel extends JPanel {
             }
         };
         worker.execute();
+    }
+
+    /**
+     * Parses the minimum rating filter from the rating combo box.
+     */
+    private Double parseSelectedMinRating() {
+        if (ratingCombo == null) return null;
+        String selected = (String) ratingCombo.getSelectedItem();
+        if (selected == null || "All Ratings".equals(selected)) {
+            return null;
+        }
+        if (selected.contains("4.5")) return 4.5;
+        if (selected.contains("4.0")) return 4.0;
+        if (selected.contains("3.0")) return 3.0;
+        return null;
     }
 
     /**
@@ -403,6 +447,7 @@ public class CatalogPanel extends JPanel {
         if (categoryCombo != null) categoryCombo.setSelectedIndex(0);
         if (seasonCombo != null) seasonCombo.setSelectedIndex(0);
         if (priceCombo != null) priceCombo.setSelectedIndex(0);
+        if (ratingCombo != null) ratingCombo.setSelectedIndex(0);
         applyFiltersAsync();
     }
 
@@ -434,6 +479,9 @@ public class CatalogPanel extends JPanel {
                         onBookPackageListener.accept(p);
                     }
                 });
+
+                // Refresh catalog when customer leaves a review and rates this place
+                card.setOnReviewChangedListener(this::applyFiltersAsync);
 
                 gridPanel.add(card);
             }

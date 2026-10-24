@@ -22,11 +22,13 @@ public class PackageCard extends JPanel {
     private final Package travelPackage;
     private Consumer<Package> onViewDetailsListener;
     private Consumer<Package> onBookNowListener;
+    private Runnable onReviewChangedListener;
 
     private JLabel matchScoreLabel;
     private JLabel matchReasonLabel;
     private JLabel strikePrice;
     private JLabel finalPriceLabel;
+    private JLabel ratingTag;
 
     public PackageCard(Package travelPackage) {
         this.travelPackage = travelPackage;
@@ -37,8 +39,8 @@ public class PackageCard extends JPanel {
     private void initCardUI() {
         setLayout(new BorderLayout());
         setBackground(ThemeConstants.CARD_BG);
-        setPreferredSize(new Dimension(295, 315));
-        setMinimumSize(new Dimension(270, 290));
+        setPreferredSize(new Dimension(305, 320));
+        setMinimumSize(new Dimension(280, 295));
 
         // Modern card border with subtle outline, no wasteful bottom insets
         setBorder(new LineBorder(new Color(228, 231, 236), 1, true));
@@ -199,7 +201,15 @@ public class PackageCard extends JPanel {
         JLabel durationTag = createTag("⏱ " + duration + " Days", new Color(243, 244, 246), ThemeConstants.TEXT_PRIMARY);
         tagsRow.add(durationTag);
 
-        JLabel ratingTag = createTag("★ 4.8", new Color(254, 249, 231), new Color(183, 119, 0));
+        ratingTag = createTag("★ 5.0", new Color(254, 249, 231), new Color(183, 119, 0));
+        ratingTag.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        ratingTag.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                openReviewsDialog();
+            }
+        });
+        updateRatingDisplay();
         tagsRow.add(ratingTag);
 
         if (travelPackage != null && travelPackage.getSeason() != null && !travelPackage.getSeason().trim().isEmpty()) {
@@ -288,7 +298,7 @@ public class PackageCard extends JPanel {
         detailsBtn.setFont(ThemeConstants.FONT_SMALL);
         detailsBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         detailsBtn.setFocusPainted(false);
-        detailsBtn.setPreferredSize(new Dimension(72, 28));
+        detailsBtn.setPreferredSize(new Dimension(68, 28));
         detailsBtn.addActionListener(e -> {
             if (onViewDetailsListener != null) {
                 onViewDetailsListener.accept(travelPackage);
@@ -297,6 +307,14 @@ public class PackageCard extends JPanel {
             }
         });
         buttonsPanel.add(detailsBtn);
+
+        JButton reviewsBtn = new JButton("Reviews");
+        reviewsBtn.setFont(ThemeConstants.FONT_SMALL);
+        reviewsBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        reviewsBtn.setFocusPainted(false);
+        reviewsBtn.setPreferredSize(new Dimension(72, 28));
+        reviewsBtn.addActionListener(e -> openReviewsDialog());
+        buttonsPanel.add(reviewsBtn);
 
         JButton bookBtn = new JButton("Book Now");
         bookBtn.setFont(ThemeConstants.FONT_BOLD);
@@ -462,6 +480,68 @@ public class PackageCard extends JPanel {
 
     public void setOnBookNowListener(Consumer<Package> listener) {
         this.onBookNowListener = listener;
+    }
+
+    public void setOnReviewChangedListener(Runnable listener) {
+        this.onReviewChangedListener = listener;
+    }
+
+    /**
+     * Dynamically updates the rating tag based on customer reviews.
+     */
+    public void updateRatingDisplay() {
+        if (ratingTag == null || travelPackage == null) return;
+        double avg = travelPackage.getAverageRating();
+        int count = travelPackage.getReviewCount();
+
+        if (count > 0) {
+            ratingTag.setText(String.format("★ %.1f (%d)", avg, count));
+            ratingTag.setToolTipText(String.format("Rated %.1f / 5 based on %d customer reviews. Click to view or leave a review.", avg, count));
+            ratingTag.setBackground(new Color(254, 249, 231));
+            ratingTag.setForeground(new Color(183, 119, 0));
+        } else {
+            ratingTag.setText("★ Rate Place");
+            ratingTag.setToolTipText("No reviews yet. Click to be the first to rate and review this place!");
+            ratingTag.setBackground(new Color(243, 244, 246));
+            ratingTag.setForeground(ThemeConstants.TEXT_MUTED);
+        }
+        ratingTag.revalidate();
+        ratingTag.repaint();
+    }
+
+    /**
+     * Opens the Reviews & Ratings dialog for this package/destination.
+     */
+    public void openReviewsDialog() {
+        if (travelPackage == null) return;
+        Window owner = SwingUtilities.getWindowAncestor(this);
+
+        int currentUserId = 2; // Default John Doe
+        if (com.tourism.model.UserSession.getInstance().getCurrentUser() != null) {
+            currentUserId = com.tourism.model.UserSession.getInstance().getCurrentUser().getUserId();
+        }
+
+        ReviewDialog dialog = new ReviewDialog(owner, currentUserId, travelPackage.getPackageId(), travelPackage.getTitle(), () -> {
+            // Live refresh of average rating and review count from database
+            try {
+                com.tourism.dao.ReviewDAO rDao = new com.tourism.dao.ReviewDAO();
+                double newAvg = rDao.getAverageRating(travelPackage.getPackageId());
+                int newCount = rDao.getReviewCount(travelPackage.getPackageId());
+                travelPackage.setAverageRating(newAvg);
+                travelPackage.setReviewCount(newCount);
+                if (travelPackage.getDestination() != null) {
+                    travelPackage.getDestination().setAverageRating(newAvg);
+                    travelPackage.getDestination().setReviewCount(newCount);
+                }
+                updateRatingDisplay();
+            } catch (Exception ignored) {}
+
+            if (onReviewChangedListener != null) {
+                onReviewChangedListener.run();
+            }
+        });
+
+        dialog.setVisible(true);
     }
 
     private String getWeatherBadge(Destination dest, Package pkg) {

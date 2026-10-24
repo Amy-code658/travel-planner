@@ -11,6 +11,8 @@ public class Destination {
     private String category; // "Adventure", "Beach", "Culture", "Nature", "Luxury"
     private double estimatedDailyCost;
     private String imageUrl;
+    private double averageRating;
+    private int reviewCount;
 
     public Destination() {}
 
@@ -87,6 +89,22 @@ public class Destination {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
     }
 
     @Override

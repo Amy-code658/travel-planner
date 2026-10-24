@@ -167,3 +167,20 @@ INSERT INTO itinerary_days (package_id, day_number, title, activity_description)
 (11, 4, 'Luxor Flight & Valley of the Kings', 'Short flight to Luxor, visit royal tomb chambers in Valley of the Kings, and Hatshepsut Temple.'),
 (11, 5, 'Karnak & Luxor Monumental Temples', 'Walk through the 134 towering stone columns of Karnak and floodlit Luxor Temple at dusk.'),
 (11, 6, 'Nile Felucca Sail & Return Flight', 'Traditional wooden felucca sail on the Nile River and departure transfer.');
+
+-- 5. Customer Reviews (Authentic initial ratings for travel packages and destinations)
+INSERT INTO reviews (user_id, package_id, rating, comment, review_date) VALUES
+(2, 1, 5, 'Breathtaking beaches in Kuta and stunning temples in Ubud. A truly magical vacation!', '2026-10-10 14:30:00'),
+(6, 1, 4, 'Very relaxing getaway, loved the Luwak coffee plantation and Mount Batur view.', '2026-10-12 11:15:00'),
+(6, 2, 5, 'The Matterhorn mountain trails and scenic glacier trains were magnificent!', '2026-10-14 09:20:00'),
+(2, 3, 5, 'Fushimi Inari torii gates and traditional tea ceremonies were unforgettable.', '2026-10-15 16:45:00'),
+(6, 4, 5, 'Romantic evening cruise along the Seine and private Louvre tour. Exceptional!', '2026-10-16 20:00:00'),
+(2, 4, 4, 'Paris was beautiful. The Eiffel tower dinner was the highlight.', '2026-10-17 18:30:00'),
+(2, 5, 4, 'Solang valley paragliding was exhilarating! Crisp mountain air and river rafting.', '2026-10-18 10:10:00'),
+(6, 6, 5, 'Beautiful coastal sunsets, delicious local seafood and vibrant beach vibes.', '2026-10-19 12:00:00'),
+(2, 7, 4, 'Scenic ride on the UNESCO heritage toy train and peaceful walks on Mall Road.', '2026-10-20 15:30:00'),
+(6, 8, 5, 'The private houseboat on Alleppey backwaters was paradise! Serene and authentic cuisine.', '2026-10-21 17:00:00'),
+(2, 9, 5, 'Ha Long Bay overnight cruise with cave kayaking was surreal and breathtaking.', '2026-10-22 13:40:00'),
+(6, 10, 5, 'Pure luxury in the overwater villa. Turquoise lagoons and vibrant house reef turtles.', '2026-10-23 16:20:00'),
+(2, 11, 5, 'Standing in front of the Great Pyramids and sailing the Nile was a dream come true.', '2026-10-24 10:00:00')
+ON DUPLICATE KEY UPDATE rating=VALUES(rating), comment=VALUES(comment);

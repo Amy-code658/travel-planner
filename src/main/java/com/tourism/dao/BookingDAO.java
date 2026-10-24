@@ -88,15 +88,16 @@ public class BookingDAO {
      * @return true if a booking was updated, false if it was not found / not confirmed
      */
     public boolean cancelBooking(int bookingId, double refundAmount) throws SQLException {
-        String sql = "UPDATE bookings SET booking_status = ?, refund_amount = ? "
+        String sql = "UPDATE bookings SET booking_status = ?, refund_amount = ?, payment_status = ? "
                    + "WHERE booking_id = ? AND booking_status = ?";
         Connection conn = DBConnection.getInstance().getConnection();
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, Booking.CANCELLED);
             ps.setDouble(2, refundAmount);
-            ps.setInt(3, bookingId);
-            ps.setString(4, Booking.CONFIRMED);
+            ps.setString(3, refundAmount > 0 ? "REFUNDED" : "CANCELLED_NO_REFUND");
+            ps.setInt(4, bookingId);
+            ps.setString(5, Booking.CONFIRMED);
             return ps.executeUpdate() == 1;
         }
     }
