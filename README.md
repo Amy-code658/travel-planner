@@ -93,25 +93,6 @@ src/main/java/com/tourism/
 
 ---
 
-## 🤖 Mandatory AI Prompt Header for Team Members
-
-When asking your AI assistant (ChatGPT, Claude, Gemini, etc.) to write code, **always paste this at the top of your chat**:
-
-```text
-[PROJECT CONTEXT & RULES]
-You are writing code for a Java 17 desktop application called "Personalized Tourism Management System".
-Strict adherence to the following rules is mandatory:
-1. Framework: Java Swing with FlatLaf styling. Reference com.tourism.config.ThemeConstants for colors and fonts.
-2. Layouts: DO NOT use null layout or setBounds(). Use standard LayoutManagers (BorderLayout, GridBagLayout, BoxLayout, FlowLayout).
-3. Database: MySQL with JDBC. Always use PreparedStatement with '?' placeholders to prevent SQL injection.
-4. Connection: Retrieve connections exclusively through: com.tourism.config.DBConnection.getInstance().getConnection().
-5. Date Handling: Use java.time.LocalDate and java.time.LocalDateTime. Never use java.util.Date.
-6. Architecture: Maintain strict separation of concerns (UI -> Service -> DAO -> Database). Never execute SQL inside a JFrame/JPanel.
-7. Code Style: Standard Java camelCase, meaningful variable names, clean comments explaining business logic, no robotic/AI placeholder comments.
-```
-
----
-
 ## 🌿 Git Branching Workflow
 1. Never push directly to `main` or `develop`.
 2. Checkout a new branch for your feature:
